@@ -7,12 +7,12 @@ This allows for running centrally installed (or via uvx) type checkers against a
 
 from __future__ import annotations
 
-from functools import lru_cache
 import logging
 import os
 import shlex
 import sys
 from argparse import ArgumentParser
+from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -102,6 +102,7 @@ def _get_python_flags(
         f"--{version_flag}={python_version}",
     )
 
+
 @lru_cache
 def _with_parser() -> ArgumentParser:
     parser = ArgumentParser()
@@ -137,8 +138,9 @@ def _parse_no_uvx_command(command: str) -> tuple[str, list[str]]:
     return path.name, [str(path), *args]
 
 
-def _parse_command(command: str, no_uv: bool, constraints: Sequence[str], uvx_options: str) -> tuple[str, list[str]]:
-
+def _parse_command(
+    command: str, no_uv: bool, constraints: Sequence[str], uvx_options: str
+) -> tuple[str, list[str]]:
     if no_uv:
         return _parse_no_uvx_command(command)
     return _parse_uvx_command(command, constraints, uvx_options)
@@ -249,9 +251,7 @@ def get_parser() -> ArgumentParser:
         """,
     )
     _ = parser.add_argument(
-        "--uvx-options",
-        default="",
-        help="pass `--verbose` to `uvx`"
+        "--uvx-options", default="", help="pass `--verbose` to `uvx`"
     )
     _ = parser.add_argument(
         "args",
@@ -281,7 +281,12 @@ def main(args: Sequence[str] | None = None) -> int:
 
     code = 0
     for command in options.checkers:
-        checker, args = _parse_command(command, no_uv=options.no_uv, constraints=options.constraints, uvx_options=options.uvx_options)
+        checker, args = _parse_command(
+            command,
+            no_uv=options.no_uv,
+            constraints=options.constraints,
+            uvx_options=options.uvx_options,
+        )
         checker_code = _run_checker(
             checker,
             args,

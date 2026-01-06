@@ -50,10 +50,10 @@ dev = [
     { include-group = "typecheck" },
 ]
 test = [
-    "tomli; python_version < '3.11'",
     "pytest-cov",
     "pytest-sugar",
     "pytest-xdist",
+    "tomli; python_version<'3.11'",
     { include-group = "pytest" },
 ]
 docs = [
