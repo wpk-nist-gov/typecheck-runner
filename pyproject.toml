@@ -1,0 +1,362 @@
+[build-system]
+build-backend = "uv_build"
+requires = [
+    "uv-build>=0.8.22,<0.9.0",
+]
+
+[project]
+name = "typecheck-runner"
+version = "0.1.0.dev0"
+description = "Unified api to multiple typecheckers"
+readme = "README.md"
+keywords = [
+    "typecheck-runner",
+]
+license = "NIST-PD"
+license-files = [ "LICENSE" ]
+authors = [
+    { name = "William P. Krekelberg", email = "wpk@nist.gov" },
+]
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "packaging>=25.0",
+]
+urls.Documentation = "https://pages.nist.gov/typecheck-runner/"
+urls.Homepage = "https://github.com/wpk-nist-gov/typecheck-runner"
+scripts.typecheck-runner = "typecheck_runner.cli:main"
+
+[dependency-groups]
+dev = [
+    { include-group = "mypy" },
+    { include-group = "notebook" },
+    { include-group = "nox" },
+    { include-group = "pytest-accept" },
+    { include-group = "test" },
+    { include-group = "test-notebook" },
+    { include-group = "typecheck" },
+]
+test = [
+    "tomli; python_version < '3.11'",
+    "pytest-cov",
+    "pytest-sugar",
+    "pytest-xdist",
+    { include-group = "pytest" },
+]
+docs = [
+    "autodocsumm",
+    "myst-nb",
+    # myst-parser, ipython,
+    "sphinx>=5.3.0",
+    "sphinx-argparse",
+    "sphinx-book-theme",
+    "sphinx-copybutton",
+]
+# other packages/tools
+cog = [ "cogapp" ]
+ipython = [ "ipython" ]
+mypy = [ "mypy>=1.15.0", "orjson" ]
+notebook = [ "ipykernel", "nbclient" ]
+nox = [ "nox>=2025.5.1" ]
+pylint = [ "pylint" ]
+pytest = [ "pytest" ]
+pytest-accept = [ "pytest-accept" ]
+# other environments
+docs-live = [
+    "sphinx-autobuild",
+    { include-group = "docs" },
+]
+docs-spelling = [
+    "pyenchant",
+    "sphinxcontrib-spelling",
+    { include-group = "docs" },
+]
+test-extras = [
+    { include-group = "test" },
+]
+test-notebook = [
+    "nbval",
+    { include-group = "test" },
+]
+typecheck = [
+    { include-group = "pylint" },
+    { include-group = "pytest" },
+]
+
+# * uv -------------------------------------------------------------------------
+
+[tool.uv]
+managed = true
+default-groups = [ "dev" ]
+fork-strategy = "requires-python"
+required-version = ">=0.7.15"
+
+[tool.uv.pip]
+annotation-style = "line"
+generate-hashes = true
+
+[tool.uv.dependency-groups]
+dev.requires-python = ">=3.13"
+docs.requires-python = ">=3.13"
+docs-live.requires-python = ">=3.13"
+docs-spelling.requires-python = ">=3.13"
+# other tools
+cog.requires-python = ">=3.13"
+ipython.requires-python = ">=3.13"
+mypy.requires-python = ">=3.13"
+notebook.requires-python = ">=3.13"
+nox.requires-python = ">=3.13"
+
+[tool.uv.build-backend]
+source-include = [ "tests/**" ]
+
+# * Checks ---------------------------------------------------------------------
+
+[tool.repo-review]
+ignore = [
+    "GH",     # enable for actions
+    "PC111",  # use doccmd instead of blacken-docs
+    "PC140",  # do this externally
+    "PC170",  # pygrep
+    "PC901",  # ci message
+    "RTD",
+    "NOX103", # I prefer using "nox.options.sessions"
+]
+
+[tool.check-wheel-contents]
+toplevel = [ "typecheck_runner" ]
+src_dir = [ "src" ]
+
+[tool.pyproject-fmt]
+# max_supported_python = "3.13"
+
+# * Testing --------------------------------------------------------------------
+
+[tool.pytest.ini_options]
+addopts = [
+    "-ra",
+    "--strict-config",
+    "--strict-markers",
+    "--doctest-modules",
+    "--doctest-glob=*.md",
+    "--pyargs",
+    "--cov-config=pyproject.toml",
+]
+testpaths = [
+    "README.md",
+    "typecheck_runner",
+    "tests",
+]
+minversion = "8"
+log_cli_level = "INFO"
+log_level = "INFO"
+strict_xfail = "true"
+filterwarnings = [ "error" ]
+
+[tool.coverage.run]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+exclude_also = [
+    "if TYPE_CHECKING:",
+    "@overload",
+]
+omit = [
+    "*/vendored/*",
+    "*/_typing.py",
+]
+include = [
+    "src/*",
+]
+
+[tool.coverage.paths]
+source = [
+    "src/",
+    ".nox/**/site-packages/",
+]
+
+# * typecheck ---------------------------------------------------------------------
+
+[tool.mypy]
+files = [
+    "src",
+    "tests",
+]
+warn_unused_ignores = true
+warn_return_any = true
+warn_unused_configs = true
+warn_unreachable = true
+exclude = [
+    ".eggs",
+    ".tox",
+    ".nox",
+    ".venv",
+    ".numba_cache",
+    "docs",
+]
+check_untyped_defs = true
+strict = true
+enable_error_code = [
+    "ignore-without-code",
+    "redundant-expr",
+    "truthy-bool",
+]
+
+# [[tool.mypy.overrides]]
+# ignore_missing_imports = true
+# module = [  ]
+
+# [[tool.mypy.overrides]]
+# ignore_errors = true
+# module = [  ]
+
+[tool.pyrefly]
+project-includes = [ "src", "tests" ]
+
+[tool.pyright]
+include = [
+    "src",
+    "tests",
+]
+exclude = [
+    "**/__pycache__",
+    ".tox/**",
+    ".nox/**",
+    ".venv/**",
+    "**/.mypy_cache",
+    "**/.numba_cache",
+]
+pythonVersion = "3.11"
+typeCheckingMode = "strict"
+# typeCheckingMode = "standard"
+# strict = [
+#     "src",
+#     "tests",
+#     "noxfile.py",
+#     "tools/*.py",
+# ]
+reportOverlappingOverload = true
+reportPropertyTypeMismatch = true
+reportUntypedClassDecorator = true
+reportUntypedFunctionDecorator = true
+# Extra flags
+enableTypeIgnoreComments = false
+reportUnnecessaryTypeIgnoreComment = true
+reportUnreachable = "warning"
+
+deprecateTypingAliases = true
+enableReachabilityAnalysis = false
+reportCallInDefaultInitializer = true
+reportImplicitOverride = true
+reportImportCycles = true
+# reportMissingSuperCall = true
+reportUninitializedInstanceVariable = true
+reportUnusedCallResult = true
+
+# type-checkers should type-check; linters should lint
+reportImplicitStringConcatenation = false
+reportPrivateUsage = false                # dupe of PLC2701
+reportPrivateImportUsage = false          # dupe of PLC2701
+reportUnusedImport = false                # dupe of F401
+reportUnusedVariable = false              # dupe of F841
+
+[[tool.pyright.executionEnvironments]]
+root = "tests"
+# reportCallIssue = false
+# reportArgumentType = false
+# reportMissingImports = false
+reportUnusedCallResult = false
+
+[tool.ty.src]
+include = [ "src", "tests" ]
+
+[tool.pytype]
+inputs = [
+    "src",
+    "tests",
+]
+
+# * Dependency creation --------------------------------------------------------
+
+[tool.pyproject2conda]
+user-config = "config/userconfig.toml"
+template-python = "requirements/py{py}-{env}"
+template = "requirements/{env}"
+name = "py{py}-{env}"
+python = "default"
+channels = "conda-forge"
+style = "yaml"
+deps = "pip"
+
+[tool.pyproject2conda.envs.dev]
+groups = "dev"
+
+[tool.pyproject2conda.envs.test]
+groups = "test"
+python = "all"
+
+[tool.pyproject2conda.envs.test-extras]
+groups = "test-extras"
+python = "all"
+skip-package = true
+
+[tool.pyproject2conda.envs.uvx-tools]
+reqs = [
+    # these used solely for specking tools to be run via uvx ...
+    "conda-lock>=2.5.5",
+    "cruft",
+    "grayskull>=2.5.3",
+    "nbqa>=1.8.4",
+    "pre-commit>=4.0.0",
+    "pre-commit-uv",
+    "prek",
+    "pyrefly>=0.37.0",
+    "pyright>=1.1.396",
+    "basedpyright>=1.31.3",
+    "scriv",
+    "twine>=5.0.0",
+    "ty",
+]
+groups = [
+    "cog",
+    "mypy",
+    "nox",
+]
+skip-package = true
+style = "requirements"
+
+[tool.pyproject2conda.envs.pre-commit-additional-dependencies]
+reqs = [
+    "rust-just",
+]
+groups = [
+    "cog",
+]
+skip-package = true
+style = "requirements"
+
+# * Other tools ----------------------------------------------------------------
+
+[tool.scriv]
+format = "md"
+md_header_level = "2"
+new_fragment_template = "file: changelog.d/templates/new_fragment.md.j2"
+
+[tool.commitizen]
+use_shortcuts = true
+
+[tool.cruft]

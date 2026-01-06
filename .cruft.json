@@ -1,0 +1,26 @@
+{
+  "template": "https://github.com/usnistgov/cookiecutter-nist-python.git",
+  "commit": "31457e07f4eb087c191f44e7baf59fbc0b2b7698",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "project_name": "typecheck-runner",
+      "project_slug": "typecheck_runner",
+      "project_short_description": "Unified api to multiple typecheckers",
+      "full_name": "William P. Krekelberg",
+      "email": "wpk@nist.gov",
+      "github_username": "wpk-nist-gov",
+      "pypi_username": "wpk-nist",
+      "conda_channel": "wpk-nist",
+      "command_line_interface": "argparse",
+      "sphinx_use_autodocsumm": true,
+      "sphinx_theme": "sphinx_book_theme",
+      "year": "2025",
+      "__answers": "",
+      "_copy_without_render": [],
+      "_template": "https://github.com/usnistgov/cookiecutter-nist-python.git",
+      "_commit": "31457e07f4eb087c191f44e7baf59fbc0b2b7698"
+    }
+  },
+  "directory": null
+}
