@@ -1,7 +1,9 @@
 """
-Interface to type checkers (mypy, (based)pyright, ty, pyrefly) to handle python-version and python-executable.
+Interface to type checkers (mypy, (based)pyright, ty, pyrefly).
 
-This allows for running centrally installed (or via uvx) type checkers against a given virtual environment.
+This handles locating python-version and python-executable. This allows for
+running centrally installed (or via uvx) type checkers against a given virtual
+environment.
 """
 # pylint: disable=duplicate-code
 
@@ -12,7 +14,6 @@ import os
 import shlex
 import sys
 from argparse import ArgumentParser
-from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -40,6 +41,70 @@ def _setup_logging(
 
 
 # * Runner --------------------------------------------------------------------
+
+
+def _get_python_values(
+    python_version: str | None,
+    python_executable: str | None,
+    no_python_version: bool,
+    no_python_executable: bool,
+) -> tuple[str | None, str | None]:
+    if python_version is None and not no_python_version:
+        python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
+
+    if python_executable is None and not no_python_executable:
+        python_executable = sys.executable
+
+    return python_version, python_executable
+
+
+def _parse_uvx_command(
+    command: str,
+    constraints: Sequence[str],
+    uvx_delimiter: str,
+    uvx_options: str,
+) -> tuple[str, list[str]]:
+    command, *args = shlex.split(command)
+    req = Requirement(command)
+
+    idx = args.index(uvx_delimiter) if uvx_delimiter in args else len(args)
+    checker_args = args[:idx]
+    uvx_args = args[idx + 1 :]
+
+    args = [
+        "uvx",
+        *shlex.split(uvx_options),
+        *uvx_args,
+        *(f"--constraints={c}" for c in constraints),
+        command,
+        *checker_args,
+    ]
+    return req.name, args
+
+
+def _parse_no_uvx_command(command: str) -> tuple[str, list[str]]:
+    command, *args = shlex.split(command)
+    path = Path(command).expanduser().absolute()
+    return path.name, [str(path), *args]
+
+
+def _parse_command(
+    command: str,
+    no_uvx: bool,
+    constraints: Sequence[str],
+    uvx_delimiter: str,
+    uvx_options: str,
+) -> tuple[str, list[str]]:
+    if no_uvx:
+        return _parse_no_uvx_command(command)
+    return _parse_uvx_command(
+        command,
+        constraints=constraints,
+        uvx_delimiter=uvx_delimiter,
+        uvx_options=uvx_options,
+    )
+
+
 def _do_run(
     *args: str,
     env: Mapping[str, str] | None = None,
@@ -63,95 +128,48 @@ def _do_run(
     return returncode
 
 
-def _is_pyright_like(checker: str) -> bool:
-    return checker in {"pyright", "basedpyright"}
+PYRIGHT_LIKE_CHECKERS = {"pyright", "basedpyright"}
 
 
 def _get_python_flags(
     checker: str,
-    python_version: str,
-    python_executable: str,
-) -> tuple[str, ...]:
+    python_version: str | None,
+    python_executable: str | None,
+) -> list[str]:
     if checker == "pylint":
-        return ()
+        return []
 
-    if _is_pyright_like(checker):
-        python_flag = "pythonpath"
-    elif checker == "ty":
-        python_flag = "python"
-    elif checker == "pyrefly":
-        python_flag = "python-interpreter-path"
-    elif checker == "mypy":
-        # default to mypy
-        python_flag = "python-executable"
-    else:
-        msg = f"Unknown checker {checker}"
-        raise ValueError(msg)
+    out: list[str] = []
+    if python_version is not None:
+        version_flag = (
+            "pythonversion" if checker in PYRIGHT_LIKE_CHECKERS else "python-version"
+        )
+        out.append(f"--{version_flag}={python_version}")
 
-    version_flag = "pythonversion" if _is_pyright_like(checker) else "python-version"
+    if python_executable is not None:
+        if checker in PYRIGHT_LIKE_CHECKERS:
+            python_flag = "pythonpath"
+        elif checker == "ty":
+            python_flag = "python"
+        elif checker == "pyrefly":
+            python_flag = "python-interpreter-path"
+        elif checker == "mypy":
+            # default to mypy
+            python_flag = "python-executable"
+        else:
+            msg = f"Unknown checker {checker}"
+            raise ValueError(msg)
+        out.append(f"--{python_flag}={python_executable}")
 
-    check_subcommand = ["check"] if checker in {"ty", "pyrefly"} else []
-
-    if checker == "ty":
-        # ty prefers `--python` flag pointing to environonmentf
-        python_executable = str(Path(python_executable).parent.parent)
-
-    return (
-        *check_subcommand,
-        f"--{python_flag}={python_executable}",
-        f"--{version_flag}={python_version}",
-    )
-
-
-@lru_cache
-def _with_parser() -> ArgumentParser:
-    parser = ArgumentParser()
-    _ = parser.add_argument("-w", "--with", dest="with_args", action="append")
-    return parser
-
-
-def _parse_uvx_command(
-    command: str,
-    constraints: Sequence[str],
-    uvx_options: str,
-) -> tuple[str, list[str]]:
-    command, *args = shlex.split(command)
-    req = Requirement(command)
-
-    with_args, args = _with_parser().parse_known_args(args)
-
-    args = [
-        "uvx",
-        *shlex.split(uvx_options),
-        f"--from={req}",
-        *(f"--constraints={c}" for c in constraints),
-        *(f"--with={w}" for w in with_args.with_args),
-        req.name,
-        *args,
-    ]
-    return req.name, args
-
-
-def _parse_no_uvx_command(command: str) -> tuple[str, list[str]]:
-    command, *args = shlex.split(command)
-    path = Path(command).expanduser().absolute()
-    return path.name, [str(path), *args]
-
-
-def _parse_command(
-    command: str, no_uv: bool, constraints: Sequence[str], uvx_options: str
-) -> tuple[str, list[str]]:
-    if no_uv:
-        return _parse_no_uvx_command(command)
-    return _parse_uvx_command(command, constraints, uvx_options)
+    return out
 
 
 def _run_checker(
     checker: str,
     checker_args: Sequence[str],
     extra_args: Sequence[str],
-    python_version: str,
-    python_executable: str,
+    python_version: str | None,
+    python_executable: str | None,
     dry_run: bool = False,
 ) -> int:
     python_flags = _get_python_flags(checker, python_version, python_executable)
@@ -175,9 +193,12 @@ def get_parser() -> ArgumentParser:
         default=[],
         action="append",
         help="""
-        Checker to run.  This can be a string with options to the checker.  For example,
-        ``--check "mypy --verbose"`` runs the checker the command ``mypy --verbose``.
-        Can be specified multiple times.
+        Checker to run. This can be a string with options to the checker. For
+        example, ``--check "mypy --verbose"`` runs the checker the command
+        ``mypy --verbose``. Options after ``uvx_delimiter`` (default ``"--"``,
+        see ``--uvx-delimiter`` options) are treated as ``uvx`` options. For
+        example, passing ``--check "mypy --verbose -- --reinstall"`` will run
+        ``uvx --reinstall mypy --verbose``. Can be specified multiple times.
         """,
     )
     _ = parser.add_argument(
@@ -203,6 +224,22 @@ def get_parser() -> ArgumentParser:
         to ``--pythonversion`` in pyright and ``--python-version`` otherwise.
         """,
     )
+
+    _ = parser.add_argument(
+        "--no-python-executable",
+        action="store_true",
+        help="""
+        Do not infer ``python_executable``
+        """,
+    )
+    _ = parser.add_argument(
+        "--no-python-version",
+        action="store_true",
+        help="""
+        Do not infer ``python_version``.
+        """,
+    )
+
     _ = parser.add_argument(
         "--constraints",
         dest="constraints",
@@ -241,17 +278,29 @@ def get_parser() -> ArgumentParser:
         "--dry-run", action="store_true", help="""Perform dry run."""
     )
     _ = parser.add_argument(
-        "--no-uv",
         "--no-uvx",
         dest="no_uvx",
         action="store_true",
         help="""
-        If ``--no-uvx`` is passed, assume typecheckers are in the current python environment.
-        Default is to invoke typecheckers using `uvx`.
+        If ``--no-uvx`` is passed, assume typecheckers are in the current
+        python environment. Default is to invoke typecheckers using `uvx`.
         """,
     )
     _ = parser.add_argument(
-        "--uvx-options", default="", help="pass `--verbose` to `uvx`"
+        "--uvx-options",
+        default="",
+        help="""
+        Extra options to pass to ``uvx``. Note that you may have to escape the
+        first option. For example, ``--uvx-options "\\--verbose --reinstall"
+        """,
+    )
+    _ = parser.add_argument(
+        "--uvx-delimiter",
+        default="--",
+        help="""
+        delimiter between typechecker command arguments and ``uvx`` arguments.
+        See ``--check`` option.
+        """,
     )
     _ = parser.add_argument(
         "args",
@@ -271,10 +320,12 @@ def main(args: Sequence[str] | None = None) -> int:
 
     _setup_logging(options.verbosity)
 
-    python_version = (
-        options.python_version or f"{sys.version_info.major}.{sys.version_info.minor}"
+    python_version, python_executable = _get_python_values(
+        python_version=options.python_version,
+        python_executable=options.python_executable,
+        no_python_version=options.no_python_version,
+        no_python_executable=options.no_python_executable,
     )
-    python_executable = options.python_executable or sys.executable
 
     logger.debug("checkers: %s", options.checkers)
     logger.debug("args: %s", options.args)
@@ -283,8 +334,9 @@ def main(args: Sequence[str] | None = None) -> int:
     for command in options.checkers:
         checker, args = _parse_command(
             command,
-            no_uv=options.no_uv,
+            no_uvx=options.no_uvx,
             constraints=options.constraints,
+            uvx_delimiter=options.uvx_delimiter,
             uvx_options=options.uvx_options,
         )
         checker_code = _run_checker(
@@ -301,3 +353,7 @@ def main(args: Sequence[str] | None = None) -> int:
         code += checker_code
 
     return 0 if options.allow_errors else code
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
