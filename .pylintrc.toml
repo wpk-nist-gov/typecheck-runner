@@ -58,6 +58,7 @@ disable = [
     "consider-using-f-string",
     # "duplicate-code",
     # "cyclic-import",
+    "unused-import",
 ]
 
 [tool.pylint.reports]

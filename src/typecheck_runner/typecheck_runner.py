@@ -12,6 +12,7 @@ from __future__ import annotations
 import logging
 import os
 import shlex
+import subprocess
 import sys
 from argparse import ArgumentParser
 from pathlib import Path
@@ -20,12 +21,13 @@ from typing import TYPE_CHECKING
 from packaging.requirements import Requirement
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping, Sequence
+    from collections.abc import Sequence
+    from logging import Logger
 
 
 FORMAT = "[%(name)s - %(levelname)s] %(message)s"
 logging.basicConfig(level=logging.WARNING, format=FORMAT)
-logger = logging.getLogger("typecheck")
+logger: Logger = logging.getLogger("typecheck")
 
 
 # * Utilities -----------------------------------------------------------------
@@ -58,14 +60,27 @@ def _get_python_values(
     return python_version, python_executable
 
 
-def _parse_uvx_command(
+def _maybe_add_check_argument(checker: str, args: list[str]) -> list[str]:
+    if checker in {"ty", "pyrefly"} and "check" not in args:
+        return ["check", *args]
+    return args
+
+
+def _parse_command(
     command: str,
-    constraints: Sequence[str],
+    no_uvx: bool,
     uvx_delimiter: str,
-    uvx_options: str,
+    uvx_options: Sequence[str],
 ) -> tuple[str, list[str]]:
     command, *args = shlex.split(command)
+
+    if no_uvx:
+        path = Path(command).expanduser()
+        checker = path.name
+        return checker, [str(path), *_maybe_add_check_argument(checker, args)]
+
     req = Requirement(command)
+    checker = req.name
 
     idx = args.index(uvx_delimiter) if uvx_delimiter in args else len(args)
     checker_args = args[:idx]
@@ -73,59 +88,12 @@ def _parse_uvx_command(
 
     args = [
         "uvx",
-        *shlex.split(uvx_options),
+        *uvx_options,
         *uvx_args,
-        *(f"--constraints={c}" for c in constraints),
         command,
-        *checker_args,
+        *_maybe_add_check_argument(checker, checker_args),
     ]
-    return req.name, args
-
-
-def _parse_no_uvx_command(command: str) -> tuple[str, list[str]]:
-    command, *args = shlex.split(command)
-    path = Path(command).expanduser().absolute()
-    return path.name, [str(path), *args]
-
-
-def _parse_command(
-    command: str,
-    no_uvx: bool,
-    constraints: Sequence[str],
-    uvx_delimiter: str,
-    uvx_options: str,
-) -> tuple[str, list[str]]:
-    if no_uvx:
-        return _parse_no_uvx_command(command)
-    return _parse_uvx_command(
-        command,
-        constraints=constraints,
-        uvx_delimiter=uvx_delimiter,
-        uvx_options=uvx_options,
-    )
-
-
-def _do_run(
-    *args: str,
-    env: Mapping[str, str] | None = None,
-    dry_run: bool = False,
-) -> int:
-    import subprocess
-
-    cleaned_args = [*(os.fsdecode(arg) for arg in args)]
-    full_cmd = shlex.join(cleaned_args)
-    logger.info("Running %s", full_cmd)
-
-    if dry_run:
-        return 0
-
-    r = subprocess.run(cleaned_args, check=False, env=env)
-
-    if returncode := r.returncode:
-        logger.error("Command %s failed with exit code %s", full_cmd, returncode)
-        # msg = f"Returned code {returncode}"  # noqa: ERA001
-        # raise RuntimeError(msg)  # noqa: ERA001
-    return returncode
+    return checker, args
 
 
 PYRIGHT_LIKE_CHECKERS = {"pyright", "basedpyright"}
@@ -136,9 +104,6 @@ def _get_python_flags(
     python_version: str | None,
     python_executable: str | None,
 ) -> list[str]:
-    if checker == "pylint":
-        return []
-
     out: list[str] = []
     if python_version is not None:
         version_flag = (
@@ -165,27 +130,27 @@ def _get_python_flags(
 
 
 def _run_checker(
-    checker: str,
-    checker_args: Sequence[str],
-    extra_args: Sequence[str],
-    python_version: str | None,
-    python_executable: str | None,
+    *args: str,
     dry_run: bool = False,
 ) -> int:
-    python_flags = _get_python_flags(checker, python_version, python_executable)
+    cleaned_args = [os.fsdecode(arg) for arg in args]
+    full_cmd = shlex.join(cleaned_args)
+    logger.info("Running %s", full_cmd)
 
-    return _do_run(
-        *checker_args,
-        *python_flags,
-        *extra_args,
-        dry_run=dry_run,
-    )
+    if dry_run:
+        return 0
+
+    if returncode := subprocess.call(cleaned_args):
+        logger.error("Command %s failed with exit code %s", full_cmd, returncode)
+    return returncode  # pyrefly: ignore[unbound-name]
 
 
 # * Application ---------------------------------------------------------------
 def get_parser() -> ArgumentParser:
     """Get argparser."""
     parser = ArgumentParser(description="Run executable using uvx.")
+    _ = parser.add_argument("--version", action="store_true", help="Display version.")
+
     _ = parser.add_argument(
         "-c",
         "--check",
@@ -224,7 +189,6 @@ def get_parser() -> ArgumentParser:
         to ``--pythonversion`` in pyright and ``--python-version`` otherwise.
         """,
     )
-
     _ = parser.add_argument(
         "--no-python-executable",
         action="store_true",
@@ -247,8 +211,8 @@ def get_parser() -> ArgumentParser:
         action="append",
         type=Path,
         help="""
-        Constraints (requirements.txt) specs for checkers.  Can specify multiple times.
-        Passed to ``uvx --constraints=...``.
+        Constraints (requirements.txt) specs for checkers. Can specify multiple
+        times. Passed to ``uvx --constraints=...``.
         """,
     )
     _ = parser.add_argument(
@@ -270,8 +234,8 @@ def get_parser() -> ArgumentParser:
         "--fail-fast",
         action="store_true",
         help="""
-        If passed, exit on first failed checker. Default is to run all checkers
-        even if they fail.
+        Exit on first failed checker. Default is to run all checkers, even if
+        they fail.
         """,
     )
     _ = parser.add_argument(
@@ -298,7 +262,7 @@ def get_parser() -> ArgumentParser:
         "--uvx-delimiter",
         default="--",
         help="""
-        delimiter between typechecker command arguments and ``uvx`` arguments.
+        Delimiter between typechecker command arguments and ``uvx`` arguments.
         See ``--check`` option.
         """,
     )
@@ -318,6 +282,16 @@ def main(args: Sequence[str] | None = None) -> int:
     parser = get_parser()
     options = parser.parse_args(args)
 
+    if options.version:
+        from typecheck_runner import __version__
+
+        print("typecheck-runner", __version__)  # noqa: T201
+        return 0
+
+    if not options.checkers:
+        parser.print_help()
+        return 2
+
     _setup_logging(options.verbosity)
 
     python_version, python_executable = _get_python_values(
@@ -330,24 +304,26 @@ def main(args: Sequence[str] | None = None) -> int:
     logger.debug("checkers: %s", options.checkers)
     logger.debug("args: %s", options.args)
 
+    uvx_options = [
+        *shlex.split(options.uvx_options),
+        *(f"--constraints={c}" for c in options.constraints),
+    ]
+
     code = 0
     for command in options.checkers:
         checker, args = _parse_command(
             command,
             no_uvx=options.no_uvx,
-            constraints=options.constraints,
             uvx_delimiter=options.uvx_delimiter,
-            uvx_options=options.uvx_options,
+            uvx_options=uvx_options,
         )
         checker_code = _run_checker(
-            checker,
-            args,
-            options.args,
-            python_version=python_version,
-            python_executable=python_executable,
+            *args,
+            *_get_python_flags(checker, python_version, python_executable),
+            *options.args,
             dry_run=options.dry_run,
         )
-        if options.fail_fast and checker_code != 0:
+        if options.fail_fast and checker_code:
             return checker_code
 
         code += checker_code

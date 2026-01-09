@@ -40,7 +40,6 @@ repos:
         exclude: ^uv[.]lock
       - id: check-case-conflict
       - id: check-merge-conflict
-      - id: check-symlinks
       - id: check-yaml
       - id: check-json
       - id: check-toml
@@ -126,17 +125,6 @@ repos:
       - id: typos
         exclude_types: [jupyter]
         exclude: ^uv[.]lock$|^requirements
-  # ** codespell
-  - repo: https://github.com/codespell-project/codespell
-    rev: v2.4.1
-    hooks:
-      - id: codespell
-        additional_dependencies:
-          - tomli
-        args: [-I, docs/spelling_wordlist.txt]
-        exclude_types: [jupyter]
-        exclude: ^uv[.]lock$|^requirements
-        stages: [manual]
 
   # * Dependencies
   # ** pyproject2conda
@@ -180,96 +168,33 @@ repos:
         name: cog-readme
         alias: cog
         entry: >-
-          python tools/cog_runner.py --use-uvx --format=prettier
-          --lint=markdownlint-cli2 --
-        # if need package, use --group=cog --no-dev --no-active/--isolated
+          python tools/cog_runner.py --group=cog --no-dev --no-active --
+          README.md
         language: python
-        files: ^README\.md$
+        pass_filenames: false
         stages: [manual]
 
   # * typecheck
   # ** sync dependencies
-  # - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
-  #   rev: v0.2.0
-  #   hooks:
-  #     - id: fill-pre-commit-hook-deps
-  #       alias: typecheck
-  #       stages: [manual]
-  #       args:
-  #         - "--hook=basedpyright"
-  #         - "--group=typecheck"
-  #         - "--exclude=pylint"
+  - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
+    rev: v0.2.0
+    hooks:
+      - id: fill-pre-commit-hook-deps
+        alias: typecheck
+        stages: [manual]
+        args:
+          - "--hook=basedpyright"
+          - "--group=typecheck"
+          - "--exclude=pylint"
   # ** basedpyright
-  # - repo: https://github.com/DetachHead/basedpyright-pre-commit-mirror
-  #   rev: 1.36.1
-  #   hooks:
-  #     - id: basedpyright
-  #       alias: typecheck
-  #       files: ^(src/|tests/)
-  #       args: []
-  #       stages: [manual]
-
-  # * Notebook specific --------------------------------------------------------
-  # * Strip out metadata from notebooks
-  - repo: https://github.com/kynan/nbstripout
-    rev: 0.8.2
+  - repo: https://github.com/DetachHead/basedpyright-pre-commit-mirror
+    rev: 1.36.1
     hooks:
-      - id: nbstripout
-        args:
-          - "--keep-output"
-          - "--keep-count"
-          - "--extra-keys"
-          - "metadata.kernelspec metadata.kernel_spec"
-
-  - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.9.1
-    hooks:
-      # ** typos
-      - id: nbqa
-        name: nbqa-typos
-        alias: typos
-        additional_dependencies: &typos-deps
-          - typos==1.40.0
-        args: [typos, --nbqa-shell]
-        # this can lead to errors, so use with care
-        # args: [typos, --write-changes, --nbqa-shell]
-      - id: nbqa
-        name: nbqa-typos-markdown
-        alias: typos
-        additional_dependencies: *typos-deps
-        args: [typos, --nbqa-shell, --nbqa-md]
-        # this can lead to errors, so use with care
-        # args: [typos, --write-changes, --nbqa-shell, --nbqa-md]
-
-      # ** codespell
-      - id: nbqa
-        name: nbqa-codespell
-        alias: codespell
-        additional_dependencies: &codespell-deps
-          - codespell==2.4.1
-          - tomli
-        args:
-          - codespell
-          - "--ignore-words=docs/spelling_wordlist.txt"
-          - "--nbqa-shell"
+      - id: basedpyright
+        alias: typecheck
+        files: ^(src/|tests/)
+        args: []
         stages: [manual]
-      - id: nbqa
-        name: nbqa-codespell-markdown
-        alias: codespell
-        additional_dependencies: *codespell-deps
-        args:
-          - "codespell"
-          - "--ignore-words=docs/spelling_wordlist.txt"
-          - "--nbqa-shell"
-          - "--nbqa-md"
-        stages: [manual]
-
-  # ** symlink in notebooks from example/usage to docs/example/usage
-  - repo: local
-    hooks:
-      - id: symlink-docs-examples-notebooks
-        name: symlink-docs-examples-notebooks
-        entry: python tools/symlink_docs_examples_notebooks.py
-        language: python
-        files: ^docs/examples/.*\.md$
-        pass_filenames: false
+        additional_dependencies:
+          - packaging>=25.0
+          - pytest

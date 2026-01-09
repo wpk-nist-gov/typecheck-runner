@@ -78,6 +78,14 @@ UV_LOCK = True
 PYTHON_ALL_VERSIONS = nox.project.python_versions(
     nox.project.load_toml("pyproject.toml"),
 )
+PYTHON_TEST_VERSIONS = [
+    *PYTHON_ALL_VERSIONS,
+    # Free threaded python
+    "3.14t",
+    # pypy versions to test against
+    "pypy-3.10",
+    "pypy-3.11",
+]
 PYTHON_DEFAULT_VERSION = Path(".python-version").read_text(encoding="utf-8").strip()
 
 UVX_LOCK_CONSTRAINTS = "requirements/lock/uvx-tools.txt"
@@ -468,7 +476,7 @@ def pre_commit_run(
 def test_all(session: Session) -> None:
     """Run all tests and coverage."""
     session.notify("coverage-erase")
-    for py in PYTHON_ALL_VERSIONS:
+    for py in PYTHON_TEST_VERSIONS:
         session.notify(f"test-{py}")
     session.notify("coverage")
 
@@ -570,7 +578,7 @@ def test(
     )
 
 
-nox.session(**ALL_KWS)(test)
+nox.session(python=PYTHON_TEST_VERSIONS)(test)
 nox.session(name="test-conda", **CONDA_ALL_KWS)(test)
 
 
@@ -681,7 +689,7 @@ def testdist(
     )
 
 
-nox.session(name="testdist-pypi", **ALL_KWS)(testdist)
+nox.session(name="testdist-pypi", python=PYTHON_TEST_VERSIONS)(testdist)
 nox.session(name="testdist-conda", **CONDA_ALL_KWS)(testdist)
 
 
@@ -831,18 +839,12 @@ def typecheck(  # noqa: C901
             session.run("just", c, external=True)
         elif c in {"mypy", "pyright", "basedpyright", "ty", "pyrefly"}:
             session.run(
-                "python",
-                "tools/typecheck.py",
+                "typecheck-runner",
                 *get_uvx_constraint_args(),
                 "--verbose",
-                f"--checker={c}",
+                f"--check={c}",
                 "--allow-errors",
-                "--",
-                *(
-                    opts.typecheck_options
-                    or (["src", "tests"] if c in {"ty", "pyrefly"} else [])
-                ),
-                *(["--color-output"] if c == "mypy" else []),
+                external=False,
             )
         elif c == "pylint":
             session.run(

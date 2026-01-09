@@ -2,6 +2,6 @@
 
 from __future__ import annotations
 
-from typecheck_runner.cli import main
+from typecheck_runner.typecheck_runner import main
 
 raise SystemExit(main())

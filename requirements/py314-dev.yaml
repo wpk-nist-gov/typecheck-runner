@@ -7,14 +7,18 @@
 # You should not manually edit this file.
 # Instead edit the corresponding pyproject.toml file.
 #
-name: py39-test-extras
+name: py314-dev
 channels:
   - conda-forge
 dependencies:
-  - python=3.9
+  - python=3.14
+  - ipykernel
+  - mypy>=1.15.0
+  - nox>=2025.5.1
+  - orjson
+  - packaging>=25.0
+  - pylint
   - pytest
   - pytest-cov
   - pytest-sugar
-  - pytest-xdist
-  - tomli
   - pip
