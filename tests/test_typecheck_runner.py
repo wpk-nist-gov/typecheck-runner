@@ -15,8 +15,12 @@ import pytest
 from typecheck_runner import typecheck_runner
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Generator, Sequence
     from typing import Any
+
+
+def _pathify(x: str | Path | None) -> Path | None:
+    return x if x is None else Path(x)
 
 
 @pytest.mark.parametrize(
@@ -34,6 +38,173 @@ def test__setup_logging(mocked_logger: Any, verbosity: int) -> None:
     ]
 
 
+def make_fake_venv(
+    windows: bool,
+    root_path: Path,
+    venv: str = ".venv",
+) -> None:
+    if windows:
+        bin_dir = "Scripts"
+        exe = "python.exe"
+    else:
+        bin_dir = "bin"
+        exe = "python"
+
+    bin_path = root_path.joinpath(venv, bin_dir)
+    bin_path.mkdir(parents=True)
+
+    (bin_path / exe).write_text("hello")
+
+
+@pytest.fixture
+def example_path(tmp_path: Path) -> Generator[Path]:
+    old_cwd = Path.cwd()
+    os.chdir(tmp_path)
+
+    yield tmp_path
+
+    os.chdir(old_cwd)
+
+
+@pytest.mark.parametrize(
+    ("venv", "environ", "expected"),
+    [
+        (None, {"VIRTUAL_ENV": "/virtual/env"}, contextlib.nullcontext("/virtual/env")),
+        (None, {"CONDA_PREFIX": "/conda/env"}, contextlib.nullcontext("/conda/env")),
+        (
+            ".venv",
+            {"VIRTUAL_ENV": "/virtual/env", "CONDA_PREFIX": "/conda/env"},
+            contextlib.nullcontext("/virtual/env"),
+        ),
+        (
+            None,
+            {},
+            pytest.raises(ValueError, match=r"Could not infer virtual environment.*"),
+        ),
+        (".venv", {}, contextlib.nullcontext(".venv")),
+    ],
+)
+def test__infer_venv_location(
+    example_path: Path, venv: str | None, environ: dict[str, str], expected: Any
+) -> None:
+    if venv:
+        (example_path / venv).mkdir()
+
+    with (
+        patch.dict("typecheck_runner.typecheck_runner.os.environ", environ, clear=True),
+        expected as e,
+    ):
+        out = typecheck_runner._infer_venv_location()
+        assert out == Path(e).absolute()
+
+
+venv_marks = pytest.mark.parametrize(
+    ("windows", "venv", "location", "expected"),
+    [
+        (
+            False,
+            ".venv",
+            ".venv",
+            contextlib.nullcontext(".venv/bin/python"),
+        ),
+        (
+            False,
+            ".venv",
+            "venv",
+            pytest.raises(ValueError, match=r"No virtual environment.*"),
+        ),
+        (
+            True,
+            ".venv",
+            ".venv",
+            contextlib.nullcontext(".venv/Scripts/python.exe"),
+        ),
+        (
+            False,
+            ".nox/test",
+            ".nox/test",
+            contextlib.nullcontext(".nox/test/bin/python"),
+        ),
+    ],
+)
+
+
+@venv_marks
+def test__get_python_executable_from_venv_no_cd(
+    tmp_path: Path, windows: bool, venv: str, location: str, expected: Any
+) -> None:
+    make_fake_venv(windows, tmp_path, venv)
+
+    path = tmp_path.joinpath(location)
+
+    with (
+        (
+            patch("typecheck_runner.typecheck_runner.sys.platform", "windows")
+            if windows
+            else contextlib.nullcontext()
+        ),
+        expected as e,
+    ):
+        assert typecheck_runner._get_python_executable_from_venv(
+            path
+        ) == tmp_path.absolute().joinpath(e)
+
+
+@venv_marks
+def test__get_python_executable_from_venv_cd(
+    example_path: Path, windows: bool, venv: str, location: str, expected: Any
+) -> None:
+    make_fake_venv(windows, example_path, venv)
+
+    path = Path(location)
+
+    with (
+        (
+            patch("typecheck_runner.typecheck_runner.sys.platform", "windows")
+            if windows
+            else contextlib.nullcontext()
+        ),
+        expected as e,
+    ):
+        assert (
+            typecheck_runner._get_python_executable_from_venv(path)
+            == Path(e).absolute()
+        )
+
+
+@pytest.mark.parametrize(
+    ("python_executable", "venv", "infer_venv", "expected"),
+    [
+        ("/a/python", ".nox/test", True, ".nox/test/bin/python"),
+        ("/a/python", ".venv", False, ".venv/bin/python"),
+        ("/a/python", None, False, "/a/python"),
+        (None, None, False, None),
+        (None, None, True, ".venv/bin/python"),
+    ],
+)
+def test__get_python_executable(
+    example_path: Path,
+    python_executable: str | None,
+    venv: str | None,
+    infer_venv: bool,
+    expected: str | None,
+) -> None:
+    make_fake_venv(False, example_path, ".venv")
+
+    if venv is not None and venv != ".venv":
+        make_fake_venv(False, example_path, venv)
+
+    with patch.dict("typecheck_runner.typecheck_runner.os.environ", {}, clear=True):
+        out = typecheck_runner._get_python_executable(
+            _pathify(python_executable), _pathify(venv), infer_venv
+        )
+
+        if expected is None:
+            assert out is None
+        else:
+            assert out == Path(expected).absolute()
+
+
 @pytest.mark.parametrize(
     ("python_version", "no_python_version", "expected_python_version"),
     [
@@ -48,8 +219,8 @@ def test__setup_logging(mocked_logger: Any, verbosity: int) -> None:
     [
         (None, False, "infer"),
         (None, True, None),
-        ("/path/to/python", False, "/path/to/python"),
-        ("/path/to/python", True, "/path/to/python"),
+        (sys.executable, False, sys.executable),
+        (sys.executable, True, sys.executable),
     ],
 )
 def test__get_python_values(
@@ -67,8 +238,11 @@ def test__get_python_values(
         expected_python_executable = sys.executable
 
     assert typecheck_runner._get_python_values(
-        python_version, python_executable, no_python_version, no_python_executable
-    ) == (expected_python_version, expected_python_executable)
+        python_version,
+        _pathify(python_executable),
+        no_python_version,
+        no_python_executable,
+    ) == (expected_python_version, _pathify(expected_python_executable))
 
 
 @pytest.mark.parametrize(
@@ -272,13 +446,15 @@ def test__run_checker(
     return_value: int,
 ) -> None:
     expected = 0 if dry_run else return_value
-
     with patch(
         "typecheck_runner.typecheck_runner.subprocess.call",
         autospec=True,
         return_value=return_value,
     ) as mocked_call:
-        assert typecheck_runner._run_checker(*args, dry_run=dry_run) == expected
+        assert (
+            typecheck_runner._run_checker(*args, checker="checker", dry_run=dry_run)
+            == expected
+        )
         assert (
             mocked_logger.error.call_count == 0 if (dry_run or not return_value) else 1
         )
@@ -290,9 +466,10 @@ def test__run_checker(
 
 
 @pytest.mark.parametrize(
-    ("args", "expecteds"),
+    ("checkers", "args", "expecteds"),
     [
         pytest.param(
+            ["mypy"],
             ("--check", "mypy", "--no-uvx", "src"),
             [
                 (
@@ -307,6 +484,7 @@ def test__run_checker(
             id="no_uvx",
         ),
         pytest.param(
+            ["mypy"],
             ("--check", "mypy --verbose", "src"),
             [
                 (
@@ -323,6 +501,7 @@ def test__run_checker(
             id="uvx",
         ),
         pytest.param(
+            ["mypy", "pyright"],
             ("--check", "mypy", "--check", "pyright -v", "--no-uvx", "src"),
             [
                 (
@@ -350,19 +529,22 @@ def test__run_checker(
 @patch("typecheck_runner.typecheck_runner._run_checker", autospec=True, return_value=0)
 def test_main(
     mocked_run_checker: Any,
+    checkers: list[str],
     args: Sequence[str],
     expecteds: list[Any],
 ) -> None:
     assert not typecheck_runner.main(args)
     assert mocked_run_checker.call_args_list == [
-        call(*e, dry_run=False) for e in expecteds
+        call(*e, checker=checker, dry_run=False)
+        for checker, e in zip(checkers, expecteds, strict=True)
     ]
 
 
 @pytest.mark.parametrize(
-    ("args", "expecteds"),
+    ("checkers", "args", "expecteds"),
     [
         pytest.param(
+            ["mypy", "pyright"],
             ("--check", "mypy", "--check", "pyright -v", "--no-uvx", "src"),
             [
                 (
@@ -391,6 +573,7 @@ def test_main(
 @patch("typecheck_runner.typecheck_runner._run_checker", autospec=True, return_value=1)
 def test_main_fail_fast(
     mocked_run_checker: Any,
+    checkers: list[str],
     args: Sequence[str],
     expecteds: list[Any],
     fail_fast: bool,
@@ -401,7 +584,8 @@ def test_main_fail_fast(
 
     assert out == len(expects)
     assert mocked_run_checker.call_args_list == [
-        call(*e, dry_run=False) for e in expects
+        call(*e, checker=checker, dry_run=False)
+        for checker, e in zip(checkers, expects, strict=True)
     ]
 
 

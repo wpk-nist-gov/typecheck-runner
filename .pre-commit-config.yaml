@@ -183,18 +183,34 @@ repos:
         alias: typecheck
         stages: [manual]
         args:
-          - "--hook=basedpyright"
+          - "--hook=typecheck-runner"
           - "--group=typecheck"
           - "--exclude=pylint"
-  # ** basedpyright
-  - repo: https://github.com/DetachHead/basedpyright-pre-commit-mirror
-    rev: 1.36.1
+          - "--requirements=requirements/lock/uvx-tools.txt"
+          # - "--requirements-include=mypy"
+          # - "--requirements-include=orjson"
+          - "--requirements-include=basedpyright"
+          - "--requirements-include=ty"
+          - "--requirements-include=pyrefly"
+          - "."
+  - repo: local
     hooks:
-      - id: basedpyright
-        alias: typecheck
+      - id: typecheck-runner
+        name: typecheck-runner
+        entry: python -m typecheck_runner --no-uvx -v
+        language: python
+        args:
+          - -cbasedpyright
+          - -cty
+          - -cpyrefly
+        require_serial: true
+        types_or: [python, pyi]
         files: ^(src/|tests/)
-        args: []
         stages: [manual]
         additional_dependencies:
+          - .
+          - basedpyright==1.37.1
           - packaging>=25.0
+          - pyrefly==0.47.0
           - pytest
+          - ty==0.0.10

@@ -16,6 +16,7 @@ import subprocess
 import sys
 from argparse import ArgumentParser
 from pathlib import Path
+from time import perf_counter
 from typing import TYPE_CHECKING
 
 from packaging.requirements import Requirement
@@ -45,17 +46,70 @@ def _setup_logging(
 # * Runner --------------------------------------------------------------------
 
 
+def _infer_venv_location() -> Path:
+    for var in ["VIRTUAL_ENV", "CONDA_PREFIX"]:
+        venv: str = os.getenv(var, "")
+        if venv:
+            logger.debug("Inferred venv location %s", venv)
+            return Path(venv).absolute()
+
+    for d in [".venv"]:
+        if (path := Path(d)).is_dir():
+            logger.debug("Inferred venv location %s", path)
+            return path.absolute()
+
+    msg = "Could not infer virtual environment"
+    raise ValueError(msg)
+
+
+def _get_python_executable_from_venv(
+    location: Path,
+) -> Path:
+    executable = "python.exe" if sys.platform.startswith("win") else "python"
+    for d in ["bin", "Scripts"]:
+        if (path := location / d / executable).exists():
+            logger.debug("Inferred python-executable %s", path)
+            return path.absolute()
+
+    msg = f"No virtual environment found under {location}"
+    raise ValueError(msg)
+
+
+def _get_python_executable(
+    python_executable: Path | None, venv: Path | None, infer_venv: bool
+) -> Path | None:
+    if venv is None and infer_venv:
+        venv = _infer_venv_location()
+
+    if venv is not None:
+        return _get_python_executable_from_venv(venv)
+
+    return python_executable
+
+
 def _get_python_values(
     python_version: str | None,
-    python_executable: str | None,
+    python_executable: Path | None,
     no_python_version: bool,
     no_python_executable: bool,
-) -> tuple[str | None, str | None]:
+) -> tuple[str | None, Path | None]:
     if python_version is None and not no_python_version:
-        python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
+        if python_executable is not None:
+            # infer python version from python_executable
+            logger.debug(
+                "Calculate python-version from executable %s", python_executable
+            )
+            script = "import sys; info = sys.version_info; print(f'{info.major}.{info.minor}')"
+            python_version = (
+                subprocess.check_output([python_executable, "-c", script])
+                .decode("utf-8")
+                .strip()
+            )
+        else:
+            python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
 
     if python_executable is None and not no_python_executable:
-        python_executable = sys.executable
+        python_executable = Path(sys.executable)
 
     return python_version, python_executable
 
@@ -102,7 +156,7 @@ PYRIGHT_LIKE_CHECKERS = {"pyright", "basedpyright"}
 def _get_python_flags(
     checker: str,
     python_version: str | None,
-    python_executable: str | None,
+    python_executable: str | Path | None,
 ) -> list[str]:
     out: list[str] = []
     if python_version is not None:
@@ -131,18 +185,23 @@ def _get_python_flags(
 
 def _run_checker(
     *args: str,
+    checker: str,
     dry_run: bool = False,
 ) -> int:
     cleaned_args = [os.fsdecode(arg) for arg in args]
     full_cmd = shlex.join(cleaned_args)
-    logger.info("Running %s", full_cmd)
+    logger.info("%s command: %s", checker, full_cmd)
 
     if dry_run:
         return 0
 
-    if returncode := subprocess.call(cleaned_args):
-        logger.error("Command %s failed with exit code %s", full_cmd, returncode)
-    return returncode  # pyrefly: ignore[unbound-name]
+    start_time = perf_counter()
+    returncode = subprocess.call(cleaned_args)
+    logger.info("%s execution time: %s", checker, perf_counter() - start_time)
+    if returncode:
+        logger.error("%s failed with exit code: %s", checker, returncode)
+
+    return returncode
 
 
 # * Application ---------------------------------------------------------------
@@ -169,7 +228,7 @@ def get_parser() -> ArgumentParser:
     _ = parser.add_argument(
         "--python-executable",
         dest="python_executable",
-        default=None,  # Path(sys.executable),
+        default=None,
         type=Path,
         help="""
         Path to python executable. Defaults to ``sys.executable``. This is
@@ -204,6 +263,20 @@ def get_parser() -> ArgumentParser:
         """,
     )
 
+    _ = parser.add_argument(
+        "--venv",
+        type=Path,
+        help="""
+        Use specified vitualenvironment location
+        """,
+    )
+    _ = parser.add_argument(
+        "--infer-venv",
+        action="store_true",
+        help="""
+        Infer virtual environment location.  Checks in order environment variables ``VIRTUAL_ENV``, ``CONDA_PREFIX``, directory ``.venv``.
+        """,
+    )
     _ = parser.add_argument(
         "--constraints",
         dest="constraints",
@@ -294,13 +367,18 @@ def main(args: Sequence[str] | None = None) -> int:
 
     _setup_logging(options.verbosity)
 
+    # possibly infer python executable from location
     python_version, python_executable = _get_python_values(
         python_version=options.python_version,
-        python_executable=options.python_executable,
+        python_executable=_get_python_executable(
+            options.python_executable, options.venv, options.infer_venv
+        ),
         no_python_version=options.no_python_version,
         no_python_executable=options.no_python_executable,
     )
 
+    logger.info("python_executable %s", python_executable)
+    logger.info("python_version %s", python_version)
     logger.debug("checkers: %s", options.checkers)
     logger.debug("args: %s", options.args)
 
@@ -321,6 +399,7 @@ def main(args: Sequence[str] | None = None) -> int:
             *args,
             *_get_python_flags(checker, python_version, python_executable),
             *options.args,
+            checker=checker,
             dry_run=options.dry_run,
         )
         if options.fail_fast and checker_code:
