@@ -2,10 +2,8 @@
 
 <!-- prettier-ignore-start -->
 [![Repo][repo-badge]][repo-link]
-[![Docs][docs-badge]][docs-link]
 [![PyPI license][license-badge]][license-link]
 [![PyPI version][pypi-badge]][pypi-link]
-[![Conda (channel only)][conda-badge]][conda-link]
 [![Code style: ruff][ruff-badge]][ruff-link]
 [![uv][uv-badge]][uv-link]
 
@@ -22,12 +20,8 @@
 [uv-link]: https://github.com/astral-sh/uv
 [pypi-badge]: https://img.shields.io/pypi/v/typecheck-runner
 [pypi-link]: https://pypi.org/project/typecheck-runner
-[docs-badge]: https://img.shields.io/badge/docs-sphinx-informational
-[docs-link]: https://pages.nist.gov/typecheck-runner/
 [repo-badge]: https://img.shields.io/badge/--181717?logo=github&logoColor=ffffff
 [repo-link]: https://github.com/wpk-nist-gov/typecheck-runner
-[conda-badge]: https://img.shields.io/conda/v/wpk-nist/typecheck-runner
-[conda-link]: https://anaconda.org/wpk-nist/typecheck-runner
 [license-badge]: https://img.shields.io/pypi/l/typecheck-runner?color=informational
 [license-link]: https://github.com/wpk-nist-gov/typecheck-runner/blob/main/LICENSE
 [changelog-link]: https://github.com/wpk-nist-gov/typecheck-runner/blob/main/CHANGELOG.md
@@ -213,10 +207,6 @@ uv add typecheck-runner
 ```
 
 <!-- end-installation -->
-
-## Documentation
-
-See the [documentation][docs-link] for further details.
 
 ## What's new?
 
