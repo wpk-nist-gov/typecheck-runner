@@ -580,12 +580,16 @@ def test_main_fail_fast(
 ) -> None:
     out = typecheck_runner.main([*args, *(["--fail-fast"] if fail_fast else [])])
 
+    if fail_fast:
+        expecteds = expecteds[:1]
+        checkers = checkers[:1]
+
     expects = expecteds[:1] if fail_fast else expecteds
 
     assert out == len(expects)
     assert mocked_run_checker.call_args_list == [
         call(*e, checker=checker, dry_run=False)
-        for checker, e in zip(checkers, expects, strict=True)
+        for checker, e in zip(checkers, expecteds, strict=True)
     ]
 
 
