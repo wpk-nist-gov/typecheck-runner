@@ -446,13 +446,15 @@ def test__run_checker(
     return_value: int,
 ) -> None:
     expected = 0 if dry_run else return_value
-
     with patch(
         "typecheck_runner.typecheck_runner.subprocess.call",
         autospec=True,
         return_value=return_value,
     ) as mocked_call:
-        assert typecheck_runner._run_checker(*args, dry_run=dry_run) == expected
+        assert (
+            typecheck_runner._run_checker(*args, checker="checker", dry_run=dry_run)
+            == expected
+        )
         assert (
             mocked_logger.error.call_count == 0 if (dry_run or not return_value) else 1
         )
@@ -464,9 +466,10 @@ def test__run_checker(
 
 
 @pytest.mark.parametrize(
-    ("args", "expecteds"),
+    ("checkers", "args", "expecteds"),
     [
         pytest.param(
+            ["mypy"],
             ("--check", "mypy", "--no-uvx", "src"),
             [
                 (
@@ -481,6 +484,7 @@ def test__run_checker(
             id="no_uvx",
         ),
         pytest.param(
+            ["mypy"],
             ("--check", "mypy --verbose", "src"),
             [
                 (
@@ -497,6 +501,7 @@ def test__run_checker(
             id="uvx",
         ),
         pytest.param(
+            ["mypy", "pyright"],
             ("--check", "mypy", "--check", "pyright -v", "--no-uvx", "src"),
             [
                 (
@@ -524,19 +529,22 @@ def test__run_checker(
 @patch("typecheck_runner.typecheck_runner._run_checker", autospec=True, return_value=0)
 def test_main(
     mocked_run_checker: Any,
+    checkers: list[str],
     args: Sequence[str],
     expecteds: list[Any],
 ) -> None:
     assert not typecheck_runner.main(args)
     assert mocked_run_checker.call_args_list == [
-        call(*e, dry_run=False) for e in expecteds
+        call(*e, checker=checker, dry_run=False)
+        for checker, e in zip(checkers, expecteds, strict=True)
     ]
 
 
 @pytest.mark.parametrize(
-    ("args", "expecteds"),
+    ("checkers", "args", "expecteds"),
     [
         pytest.param(
+            ["mypy", "pyright"],
             ("--check", "mypy", "--check", "pyright -v", "--no-uvx", "src"),
             [
                 (
@@ -565,6 +573,7 @@ def test_main(
 @patch("typecheck_runner.typecheck_runner._run_checker", autospec=True, return_value=1)
 def test_main_fail_fast(
     mocked_run_checker: Any,
+    checkers: list[str],
     args: Sequence[str],
     expecteds: list[Any],
     fail_fast: bool,
@@ -575,7 +584,8 @@ def test_main_fail_fast(
 
     assert out == len(expects)
     assert mocked_run_checker.call_args_list == [
-        call(*e, dry_run=False) for e in expects
+        call(*e, checker=checker, dry_run=False)
+        for checker, e in zip(checkers, expects, strict=True)
     ]
 
 

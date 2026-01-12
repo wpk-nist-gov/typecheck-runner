@@ -16,6 +16,7 @@ import subprocess
 import sys
 from argparse import ArgumentParser
 from pathlib import Path
+from time import perf_counter
 from typing import TYPE_CHECKING
 
 from packaging.requirements import Requirement
@@ -184,18 +185,23 @@ def _get_python_flags(
 
 def _run_checker(
     *args: str,
+    checker: str,
     dry_run: bool = False,
 ) -> int:
     cleaned_args = [os.fsdecode(arg) for arg in args]
     full_cmd = shlex.join(cleaned_args)
-    logger.info("Running %s", full_cmd)
+    logger.info("%s command: %s", checker, full_cmd)
 
     if dry_run:
         return 0
 
-    if returncode := subprocess.call(cleaned_args):
-        logger.error("Command %s failed with exit code %s", full_cmd, returncode)
-    return returncode  # pyrefly: ignore[unbound-name]
+    start_time = perf_counter()
+    returncode = subprocess.call(cleaned_args)
+    logger.info("%s execution time: %s", checker, perf_counter() - start_time)
+    if returncode:
+        logger.error("%s failed with exit code: %s", checker, returncode)
+
+    return returncode
 
 
 # * Application ---------------------------------------------------------------
@@ -393,6 +399,7 @@ def main(args: Sequence[str] | None = None) -> int:
             *args,
             *_get_python_flags(checker, python_version, python_executable),
             *options.args,
+            checker=checker,
             dry_run=options.dry_run,
         )
         if options.fail_fast and checker_code:

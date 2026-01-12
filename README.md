@@ -39,6 +39,8 @@
 [basedpyright]: https://github.com/DetachHead/basedpyright
 [ty]: https://github.com/astral-sh/ty
 [pyrefly]: https://github.com/microsoft/pyright
+<!-- [pre-commit]: https://pre-commit.com/ -->
+<!-- [prek]: https://github.com/j178/prek -->
 
 <!-- prettier-ignore-end -->
 
@@ -205,12 +207,9 @@ Use one of the following
 
 ```bash
 pip install typecheck-runner
-```
-
-or
-
-```bash
-conda install -c wpk-nist typecheck-runner
+uv pip install typecheck-runner
+uv add typecheck-runner
+...
 ```
 
 <!-- end-installation -->
