@@ -61,6 +61,8 @@ checker if needed.
 
 ## Usage
 
+### Install into virtual environment
+
 The easiest way to use `typecheck-runner` is to install it into the virtual
 environment you'd like to test against using something like
 
@@ -92,6 +94,22 @@ typecheck-runner --check "mypy --verbose -- --reinstall"
 
 You can specify `uvx` options to all checkers using the `--uvx-options` flag.
 
+### Specify virtual environment
+
+You can also use a globally installed `typecheck-runner` and specify which
+virtual environment to test over using `--venv` or `--infer-venv` options. For
+example, you can use:
+
+```bash
+uvx typecheck-runner --venv .venv --check mypy
+# run for example (if .venv current directory with version 3.14)
+#   uvx mypy --python-version=3.14 --python-executable=.venv/bin/python
+```
+
+Using `--infer-venv` will attempt to infer the virtual environment from, in
+order, environment variables `VIRTUAL_ENV`, `CONDA_PREFIX`, and finally `.venv`
+in current directory.
+
 ## Options
 
 <!-- markdownlint-disable-next-line MD013 -->
@@ -111,9 +129,10 @@ sys.path.pop(0)
 usage: typecheck-runner [-h] [--version] [-c CHECKERS]
                         [--python-executable PYTHON_EXECUTABLE]
                         [--python-version PYTHON_VERSION] [--no-python-executable]
-                        [--no-python-version] [--constraints CONSTRAINTS] [-v]
-                        [--allow-errors] [--fail-fast] [--dry-run] [--no-uvx]
-                        [--uvx-options UVX_OPTIONS] [--uvx-delimiter UVX_DELIMITER]
+                        [--no-python-version] [--venv VENV] [--infer-venv]
+                        [--constraints CONSTRAINTS] [-v] [--allow-errors] [--fail-fast]
+                        [--dry-run] [--no-uvx] [--uvx-options UVX_OPTIONS]
+                        [--uvx-delimiter UVX_DELIMITER]
                         [args ...]
 
 Run executable using uvx.
@@ -144,6 +163,10 @@ options:
   --no-python-executable
                         Do not infer ``python_executable``
   --no-python-version   Do not infer ``python_version``.
+  --venv VENV           Use specified vitualenvironment location
+  --infer-venv          Infer virtual environment location. Checks in order environment
+                        variables ``VIRTUAL_ENV``, ``CONDA_PREFIX``, directory
+                        ``.venv``.
   --constraints CONSTRAINTS
                         Constraints (requirements.txt) specs for checkers. Can specify
                         multiple times. Passed to ``uvx --constraints=...``.
