@@ -840,6 +840,7 @@ def typecheck(  # noqa: C901
         elif c in {"mypy", "pyright", "basedpyright", "ty", "pyrefly"}:
             session.run(
                 "typecheck-runner",
+                f"--venv={session.virtualenv.location}",
                 *get_uvx_constraint_args(),
                 "--verbose",
                 f"--check={c}",
