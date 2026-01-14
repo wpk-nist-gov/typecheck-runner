@@ -23,14 +23,23 @@ def _pathify(x: str | Path | None) -> Path | None:
     return x if x is None else Path(x)
 
 
+def _dummy_which(x: str) -> str:
+    return "/hello/" + x
+
+
+def _identity(x: Any) -> Any:
+    return x
+
+
 @pytest.mark.parametrize(
     "verbosity",
     [-1, 0, 1, 2],
 )
+@pytest.mark.parametrize("stdout", [False, True])
 @patch("typecheck_runner.typecheck_runner.logger", autospec=True)
-def test__setup_logging(mocked_logger: Any, verbosity: int) -> None:
+def test__setup_logging(mocked_logger: Any, stdout: bool, verbosity: int) -> None:
     expected = max(0, WARNING - 10 * verbosity)
-    typecheck_runner._setup_logging(verbosity)
+    typecheck_runner._setup_logging(verbosity, stdout)
     mocked_logger.setLevel.assert_called_once_with(expected)
     mocked_logger.setLevel.assert_called_with(expected)
     assert mocked_logger.setLevel.call_args_list == [
@@ -340,42 +349,44 @@ def test__parser_command_uvx(
         pytest.param(
             "mypy",
             "mypy",
-            ["mypy"],
+            ["/hello/mypy"],
             id="basic",
         ),
         pytest.param(
             "mypy --verbose -a",
             "mypy",
-            ["mypy", "--verbose", "-a"],
+            ["/hello/mypy", "--verbose", "-a"],
             id="with options",
         ),
         pytest.param(
             "/path/to/mypy",
             "mypy",
-            ["/path/to/mypy"],
+            ["/hello//path/to/mypy"],
             id="path",
         ),
         pytest.param(
             "~/mypy",
             "mypy",
-            [str(Path("~/mypy").expanduser())],
+            ["/hello/" + str(Path("~/mypy").expanduser())],
             id="expanduser",
         ),
         pytest.param(
             "/path/to/mypy -b --c",
             "mypy",
-            ["/path/to/mypy", "-b", "--c"],
+            ["/hello//path/to/mypy", "-b", "--c"],
             id="path with options",
         ),
         pytest.param(
             "/path/to/ty -b --c",
             "ty",
-            ["/path/to/ty", "check", "-b", "--c"],
+            ["/hello//path/to/ty", "check", "-b", "--c"],
             id="path with options ty no check",
         ),
     ],
 )
+@patch("typecheck_runner.typecheck_runner.shutil.which", side_effect=_dummy_which)
 def test__parse_command_no_uvx(
+    mock_which: Any,  # noqa: ARG001
     command: str,
     expected_command: str,
     expected_args: list[str],
@@ -451,10 +462,7 @@ def test__run_checker(
         autospec=True,
         return_value=return_value,
     ) as mocked_call:
-        assert (
-            typecheck_runner._run_checker(*args, checker="checker", dry_run=dry_run)
-            == expected
-        )
+        assert typecheck_runner._run_checker(*args, dry_run=dry_run) == expected
         assert (
             mocked_logger.error.call_count == 0 if (dry_run or not return_value) else 1
         )
@@ -473,7 +481,7 @@ def test__run_checker(
             ("--check", "mypy", "--no-uvx", "src"),
             [
                 (
-                    "mypy",
+                    "/hello/mypy",
                     *typecheck_runner._get_python_flags(
                         "mypy",
                         *typecheck_runner._get_python_values(None, None, False, False),
@@ -505,7 +513,7 @@ def test__run_checker(
             ("--check", "mypy", "--check", "pyright -v", "--no-uvx", "src"),
             [
                 (
-                    "mypy",
+                    "/hello/mypy",
                     *typecheck_runner._get_python_flags(
                         "mypy",
                         *typecheck_runner._get_python_values(None, None, False, False),
@@ -513,7 +521,7 @@ def test__run_checker(
                     "src",
                 ),
                 (
-                    "pyright",
+                    "/hello/pyright",
                     "-v",
                     *typecheck_runner._get_python_flags(
                         "pyright",
@@ -527,7 +535,9 @@ def test__run_checker(
     ],
 )
 @patch("typecheck_runner.typecheck_runner._run_checker", autospec=True, return_value=0)
+@patch("typecheck_runner.typecheck_runner.shutil.which", side_effect=_dummy_which)
 def test_main(
+    mocked_which: Any,  # noqa: ARG001
     mocked_run_checker: Any,
     checkers: list[str],
     args: Sequence[str],
@@ -535,8 +545,7 @@ def test_main(
 ) -> None:
     assert not typecheck_runner.main(args)
     assert mocked_run_checker.call_args_list == [
-        call(*e, checker=checker, dry_run=False)
-        for checker, e in zip(checkers, expecteds, strict=True)
+        call(*e, dry_run=False) for checker, e in zip(checkers, expecteds, strict=True)
     ]
 
 
@@ -571,7 +580,9 @@ def test_main(
 )
 @pytest.mark.parametrize("fail_fast", [False, True])
 @patch("typecheck_runner.typecheck_runner._run_checker", autospec=True, return_value=1)
+@patch("typecheck_runner.typecheck_runner.shutil.which", side_effect=_identity)
 def test_main_fail_fast(
+    mocked_which: Any,  # noqa: ARG001
     mocked_run_checker: Any,
     checkers: list[str],
     args: Sequence[str],
@@ -588,8 +599,7 @@ def test_main_fail_fast(
 
     assert out == len(expects)
     assert mocked_run_checker.call_args_list == [
-        call(*e, checker=checker, dry_run=False)
-        for checker, e in zip(checkers, expecteds, strict=True)
+        call(*e, dry_run=False) for checker, e in zip(checkers, expecteds, strict=True)
     ]
 
 

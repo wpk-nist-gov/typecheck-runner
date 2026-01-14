@@ -155,10 +155,10 @@ requirements *options: (_requirements "--sync-or-lock" options)
 
 # * Typecheck ---------------------------------------------------------------------
 
-TYPECHECK_UVRUN_OPTS := "--group=typecheck --no-dev"
+TYPECHECK_UVRUN_OPTS := "--only-group=typecheck"
 
 _typecheck *check_options:
-    {{ UVRUN }} {{ TYPECHECK_UVRUN_OPTS }} -m typecheck_runner {{ UVX_OPTS }} {{ check_options }}
+    {{ UVRUN }} {{ TYPECHECK_UVRUN_OPTS }} -m typecheck_runner -v {{ UVX_OPTS }} {{ check_options }}
 
 # Run mypy (with optional args)
 [group("typecheck")]
@@ -182,7 +182,7 @@ basedpyright-watch *options: (_typecheck "-c'basedpyright -w" options)
 
 # Run basedpyright (with --verifytypes <package> --ignoreexternal)
 [group("typecheck")]
-basedpyright-verifytypes *options=("src/" + IMPORT_NAME):
+basedpyright-verifytypes:
     {{ UVRUN }} --group=basedpyright --no-dev basedpyright --verifytypes {{ IMPORT_NAME }}
 
 # Run ty (NOTE: in alpha)

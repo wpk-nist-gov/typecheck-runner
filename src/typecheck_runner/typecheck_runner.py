@@ -12,6 +12,7 @@ from __future__ import annotations
 import logging
 import os
 import shlex
+import shutil
 import subprocess
 import sys
 from argparse import ArgumentParser
@@ -26,14 +27,14 @@ if TYPE_CHECKING:
     from logging import Logger
 
 
-FORMAT = "[%(name)s - %(levelname)s] %(message)s"
-logging.basicConfig(level=logging.WARNING, format=FORMAT)
-logger: Logger = logging.getLogger("typecheck")
+FORMAT = "[typecheck-runner %(levelname)s] %(message)s"
+logger: Logger = logging.getLogger(__name__)
 
 
 # * Utilities -----------------------------------------------------------------
 def _setup_logging(
     verbosity: int = 0,
+    stdout: bool = False,
 ) -> None:  # pragma: no cover
     """Setup logging."""
     level_number = max(0, logging.WARNING - 10 * verbosity)
@@ -42,18 +43,23 @@ def _setup_logging(
     # Silence noisy loggers
     logging.getLogger("sh").setLevel(logging.WARNING)
 
+    if stdout:
+        handler = logging.StreamHandler(sys.stdout)
+        logging.basicConfig(level=logging.WARNING, format=FORMAT, handlers=[handler])
+    else:
+        logging.basicConfig(level=logging.WARNING, format=FORMAT)
+
 
 # * Runner --------------------------------------------------------------------
 
 
 def _infer_venv_location() -> Path:
-    for var in ["VIRTUAL_ENV", "CONDA_PREFIX"]:
-        venv: str = os.getenv(var, "")
-        if venv:
+    for var in ("VIRTUAL_ENV", "CONDA_PREFIX"):
+        if venv := os.getenv(var, ""):
             logger.debug("Inferred venv location %s", venv)
             return Path(venv).absolute()
 
-    for d in [".venv"]:
+    for d in (".venv",):
         if (path := Path(d)).is_dir():
             logger.debug("Inferred venv location %s", path)
             return path.absolute()
@@ -66,7 +72,7 @@ def _get_python_executable_from_venv(
     location: Path,
 ) -> Path:
     executable = "python.exe" if sys.platform.startswith("win") else "python"
-    for d in ["bin", "Scripts"]:
+    for d in ("bin", "Scripts"):
         if (path := location / d / executable).exists():
             logger.debug("Inferred python-executable %s", path)
             return path.absolute()
@@ -131,7 +137,11 @@ def _parse_command(
     if no_uvx:
         path = Path(command).expanduser()
         checker = path.name
-        return checker, [str(path), *_maybe_add_check_argument(checker, args)]
+        path_str = str(path)
+        return checker, [
+            shutil.which(path_str) or path_str,
+            *_maybe_add_check_argument(checker, args),
+        ]
 
     req = Requirement(command)
     checker = req.name
@@ -185,21 +195,20 @@ def _get_python_flags(
 
 def _run_checker(
     *args: str,
-    checker: str,
     dry_run: bool = False,
 ) -> int:
     cleaned_args = [os.fsdecode(arg) for arg in args]
     full_cmd = shlex.join(cleaned_args)
-    logger.info("%s command: %s", checker, full_cmd)
+    logger.info("Command: %s", full_cmd)
 
     if dry_run:
         return 0
 
     start_time = perf_counter()
     returncode = subprocess.call(cleaned_args)
-    logger.info("%s execution time: %s", checker, perf_counter() - start_time)
+    logger.info("Execution time: %s", perf_counter() - start_time)
     if returncode:
-        logger.error("%s failed with exit code: %s", checker, returncode)
+        logger.error("Failed with exit code: %s", returncode)
 
     return returncode
 
@@ -297,6 +306,9 @@ def get_parser() -> ArgumentParser:
         help="Set verbosity level.  Pass multiple times to up level.",
     )
     _ = parser.add_argument(
+        "--stdout", action="store_true", help="logger information to stdout"
+    )
+    _ = parser.add_argument(
         "--allow-errors",
         action="store_true",
         help="""
@@ -365,7 +377,7 @@ def main(args: Sequence[str] | None = None) -> int:
         parser.print_help()
         return 2
 
-    _setup_logging(options.verbosity)
+    _setup_logging(options.verbosity, options.stdout)
 
     # possibly infer python executable from location
     python_version, python_executable = _get_python_values(
@@ -395,11 +407,11 @@ def main(args: Sequence[str] | None = None) -> int:
             uvx_delimiter=options.uvx_delimiter,
             uvx_options=uvx_options,
         )
+        logger.info("Checker: %s", checker)
         checker_code = _run_checker(
             *args,
             *_get_python_flags(checker, python_version, python_executable),
             *options.args,
-            checker=checker,
             dry_run=options.dry_run,
         )
         if options.fail_fast and checker_code:
