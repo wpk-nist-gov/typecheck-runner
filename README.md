@@ -126,8 +126,8 @@ usage: typecheck-runner [-h] [--version] [-c CHECKERS]
                         [--python-executable PYTHON_EXECUTABLE]
                         [--python-version PYTHON_VERSION] [--no-python-executable]
                         [--no-python-version] [--venv VENV] [--infer-venv]
-                        [--constraints CONSTRAINTS] [-v] [--allow-errors] [--fail-fast]
-                        [--dry-run] [--no-uvx] [--uvx-options UVX_OPTIONS]
+                        [--constraints CONSTRAINTS] [-v] [--stdout] [--allow-errors]
+                        [--fail-fast] [--dry-run] [--no-uvx] [--uvx-options UVX_OPTIONS]
                         [--uvx-delimiter UVX_DELIMITER]
                         [args ...]
 
@@ -167,6 +167,7 @@ options:
                         Constraints (requirements.txt) specs for checkers. Can specify
                         multiple times. Passed to ``uvx --constraints=...``.
   -v, --verbose         Set verbosity level. Pass multiple times to up level.
+  --stdout              logger information to stdout
   --allow-errors        If passed, return ``0`` regardless of checker status.
   --fail-fast           Exit on first failed checker. Default is to run all checkers,
                         even if they fail.
