@@ -6,7 +6,7 @@ requires = [
 
 [project]
 name = "typecheck-runner"
-version = "0.1.0"
+version = "0.1.1"
 description = "Unified api to multiple typecheckers"
 readme = "README.md"
 keywords = [
