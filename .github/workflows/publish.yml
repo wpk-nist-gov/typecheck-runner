@@ -62,10 +62,10 @@ jobs:
           tests/test_smoke.py
 
       - name: Publish testpypi
-        run: uv publish --publish-url https://test.pypi.org/legacy
+        run: uv publish --trusted-publishing always --index testpypi
 
       - name: Publish
         if:
           ${{ github.event_name == 'workflow_dispatch' || (github.event_name ==
           'release' && github.event.action == 'published') }}
-        run: uv publish
+        run: uv publish --trusted-publishing always
