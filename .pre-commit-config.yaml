@@ -174,6 +174,30 @@ repos:
         pass_filenames: false
         stages: [manual]
 
+  # * Actions
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.36.0
+    hooks:
+      - id: check-github-workflows
+        alias: workflows
+        priority: 0
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.10
+    hooks:
+      - id: actionlint
+        alias: workflows
+        stages: [manual]
+        args:
+          - "-ignore=SC2129" # ignorable stylistic lint from shellcheck
+          - "-ignore=SC2016" # another shellcheck lint: seems to have false positives?
+        language: golang # means renovate will also update `additional_dependencies`
+        additional_dependencies:
+          # actionlint has a shellcheck integration which extracts shell scripts in `run:` steps from GitHub Actions
+          # and checks these with shellcheck. This is arguably its most useful feature,
+          # but the integration only works if shellcheck is installed
+          - "github.com/wasilibs/go-shellcheck/cmd/shellcheck@v0.11.1"
+        priority: 0
+
   # * typecheck
   # ** sync dependencies
   - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
@@ -197,6 +221,7 @@ repos:
     hooks:
       - id: typecheck-runner
         name: typecheck-runner
+        alias: typecheck
         entry: python -m typecheck_runner --no-uvx -v
         language: python
         args:
