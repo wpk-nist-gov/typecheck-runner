@@ -3,10 +3,10 @@ name: Publish
 
 on:
   workflow_dispatch:
-  push:
-    tags:
-      - v* # e.g. v0.1.0
-      - test_publish_*
+  release:
+    types:
+      - published
+      - created
 
 jobs:
   Publish:
@@ -21,6 +21,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Check no changelog fragments
+        run: |
+          shopt -s nullglob
+          for file in changelog.d/*.md ; do
+              echo "Error: changelog snippets found"
+              exit 1
+          done
+          echo "Success: no changelog snippets"
+        shell: bash
+
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
@@ -32,11 +42,29 @@ jobs:
       - name: Build
         run: uv build
 
-      - name: Smoke test (wheel)
-        run: uv run --isolated --no-project --with dist/*.whl tests/smoke.py
+      - name: Lint dist
+        run: |
+          uvx -crequirements/lock/uvx-tools.txt check-wheel-contents dist/*.whl
+          uvx -crequirements/lock/uvx-tools.txt twine check --strict dist/*
 
+      - name: Check version
+        if: ${{ github.event_name == "release" }}
+        run: |
+          uv run --script tools/check_dist_version.py --version ${{ github.event.release.tag_name }} -- dist/*.whl dist/*.tar.gz
+
+      - name: Smoke test (wheel)
+        run:
+          uv run --isolated --no-project --with dist/*.whl tests/test_smoke.py
       - name: Smoke test (sdist)
-        run: uv run --isolated --no-project --with dist/*.tar.gz tests/smoke.py
+        run:
+          uv run --isolated --no-project --with dist/*.tar.gz
+          tests/test_smoke.py
+
+      - name: Publish testpypi
+        run: uv publish --publish-url https://test.pypi.org/legacy
 
       - name: Publish
+        if:
+          ${{ github.event_name == "workflow_dispatch" || (github.event_name ==
+          "release" && github.event.action) }}
         run: uv publish
