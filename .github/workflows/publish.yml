@@ -6,7 +6,6 @@ on:
   release:
     types:
       - published
-      - created
 
 jobs:
   Publish:
@@ -65,7 +64,4 @@ jobs:
         run: uv publish --trusted-publishing always --index testpypi
 
       - name: Publish
-        if:
-          ${{ github.event_name == 'workflow_dispatch' || (github.event_name ==
-          'release' && github.event.action == 'published') }}
         run: uv publish --trusted-publishing always
