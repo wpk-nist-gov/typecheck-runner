@@ -19,11 +19,11 @@ jobs:
   dist:
     name: Build and verify
     runs-on: ubuntu-latest
+    env:
+      DIST: "/tmp/biapp/dist"
     permissions:
       id-token: write
       attestations: write
-    env:
-      DIST: "/tmp/biapp/dist"
 
     steps:
       - uses: actions/checkout@v6
@@ -35,6 +35,10 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version-file: ".python-version"
+
+      - run: |
+          echo a "${DIST}"
+          echo b $DIST
 
       - name: Smoke test
         run: |
