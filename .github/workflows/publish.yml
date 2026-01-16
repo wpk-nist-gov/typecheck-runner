@@ -61,10 +61,10 @@ jobs:
           uv run --script tools/check_dist_version.py --version ${{ github.event.release.tag_name }} -- "${DIST}"/*.whl "${DIST}"/*.tar.gz
 
   publish-testpypi:
-    name: Publish package
+    name: Publish package to testpypi
     needs: [dist]
     environment:
-      name: test-pypi
+      name: pypi
     permissions:
       id-token: write
     runs-on: ubuntu-latest
