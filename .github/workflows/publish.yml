@@ -1,67 +1,54 @@
-# .github/workflows/publish.yml
-name: Publish
-
+name: CD
 on:
   workflow_dispatch:
+  pull_request:
+  push:
+    branches: [main]
   release:
-    types:
-      - published
+    types: [published]
+
+env:
+  FORCE_COLOR: "3"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
 
 jobs:
-  Publish:
+  dist:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: hynek/build-and-inspect-python-package@v2
+
+  deploy:
+    needs: [dist]
     environment:
       name: pypi
+      url: https://pypi.org/project/nox
     permissions:
       id-token: write
-      contents: read
-
+      attestations: write
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' && github.event.action == 'published'
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Check no changelog fragments
-        if: ${{ github.event_name == 'release' }}
-        run: |
-          shopt -s nullglob
-          for _ in changelog.d/*.md ; do
-              echo "Error: changelog snippets found"
-              exit 1
-          done
-          echo "Success: no changelog snippets"
-        shell: bash
-
-      - name: Set up Python
-        uses: actions/setup-python@v6
+      - uses: actions/download-artifact@v7
         with:
-          python-version-file: ".python-version"
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
-
-      - name: Build
-        run: uv build
-
-      - name: Lint dist
-        run: |
-          uvx -crequirements/lock/uvx-tools.txt check-wheel-contents dist/*.whl
-          uvx -crequirements/lock/uvx-tools.txt twine check --strict dist/*
+          name: Packages
+          path: dist
 
       - name: Check version
-        if: ${{ github.event_name == 'release' }}
         run: |
           uv run --script tools/check_dist_version.py --version ${{ github.event.release.tag_name }} -- dist/*.whl dist/*.tar.gz
 
-      - name: Smoke test (wheel)
-        run:
-          uv run --isolated --no-project --with dist/*.whl tests/test_smoke.py
-      - name: Smoke test (sdist)
-        run:
-          uv run --isolated --no-project --with dist/*.tar.gz
-          tests/test_smoke.py
+      - name: Publish to testpypi
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
 
-      - name: Publish testpypi
-        run: uv publish --trusted-publishing always --index testpypi
-
-      - name: Publish
-        run: uv publish --trusted-publishing always
+      - name: Publish to pypi
+        uses: pypa/gh-action-pypi-publish@release/v1
