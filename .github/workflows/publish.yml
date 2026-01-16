@@ -60,11 +60,11 @@ jobs:
         run: |
           uv run --script tools/check_dist_version.py --version ${{ github.event.release.tag_name }} -- "${DIST}"/*.whl "${DIST}"/*.tar.gz
 
-  publish:
+  publish-testpypi:
     name: Publish package
     needs: [dist]
     environment:
-      name: pypi
+      name: test-pypi
     permissions:
       id-token: write
     runs-on: ubuntu-latest
@@ -79,6 +79,21 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
+
+  publish:
+    name: Publish package
+    needs: [dist]
+    environment:
+      name: pypi
+    permissions:
+      id-token: write
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' && github.event.action == 'published'
+    steps:
+      - uses: actions/download-artifact@v7
+        with:
+          name: Packages
+          path: dist
 
       - name: Publish to pypi
         uses: pypa/gh-action-pypi-publish@release/v1
