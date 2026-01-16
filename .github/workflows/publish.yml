@@ -31,22 +31,16 @@ jobs:
           persist-credentials: false
       - uses: hynek/build-and-inspect-python-package@v2
 
-      - run: |
-          echo a "${DIST}"
-          echo b $DIST
-          ls "${DIST}"
-          ls "${DIST}"/*.whl
-          ls "${DIST}"/*.tar.gz
-
       # extra checks
-      - uses: actions/setup-python@v6
-        with:
-          python-version-file: ".python-version"
+      # smoke test handled by ci
+      # - uses: actions/setup-python@v6
+      #   with:
+      #     python-version-file: ".python-version"
 
-      - name: Smoke test
-        run: |
-          uv run --isolated --no-project --with "${DIST}"/*.whl tests/test_smoke.py
-          uv run --isolated --no-project --with "${DIST}"/*.tar.gz tests/test_smoke.py
+      # - name: Smoke test
+      #   run: |
+      #     uv run --isolated --no-project --with "${DIST}"/*.whl tests/test_smoke.py
+      #     uv run --isolated --no-project --with "${DIST}"/*.tar.gz tests/test_smoke.py
 
       - name: Check no changelog fragments
         if: github.event_name == 'release' && github.event.action == 'published'
