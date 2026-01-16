@@ -82,7 +82,7 @@ jobs:
 
   publish:
     name: Publish package
-    needs: [dist]
+    needs: [publish-testpypi]
     environment:
       name: pypi
     permissions:
