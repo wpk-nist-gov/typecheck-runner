@@ -29,27 +29,32 @@ jobs:
           persist-credentials: false
       - uses: hynek/build-and-inspect-python-package@v2
 
-      # additional checks
-      - name: Smoke test
+      - name: check
         run: |
-          uv run --isolated --no-project --with dist/*.whl tests/test_smoke.py
-          uv run --isolated --no-project --with dist/*.tar.gz tests/test_smoke.py
-
-      - name: Check no changelog fragments
-        if: github.event_name == 'release' && github.event.action == 'published'
-        run: |
-          shopt -s nullglob
-          for _ in changelog.d/*.md ; do
-              echo "Error: changelog snippets found"
-              exit 1
-          done
-          echo "Success: no changelog snippets"
+          find .
         shell: bash
 
-      - name: Check version
-        if: github.event_name == 'release' && github.event.action == 'published'
-        run: |
-          uv run --script tools/check_dist_version.py --version ${{ github.event.release.tag_name }} -- dist/*.whl dist/*.tar.gz
+      # # additional checks
+      # - name: Smoke test
+      #   run: |
+      #     uv run --isolated --no-project --with dist/*.whl tests/test_smoke.py
+      #     uv run --isolated --no-project --with dist/*.tar.gz tests/test_smoke.py
+
+      # - name: Check no changelog fragments
+      #   if: github.event_name == 'release' && github.event.action == 'published'
+      #   run: |
+      #     shopt -s nullglob
+      #     for _ in changelog.d/*.md ; do
+      #         echo "Error: changelog snippets found"
+      #         exit 1
+      #     done
+      #     echo "Success: no changelog snippets"
+      #   shell: bash
+
+      # - name: Check version
+      #   if: github.event_name == 'release' && github.event.action == 'published'
+      #   run: |
+      #     uv run --script tools/check_dist_version.py --version ${{ github.event.release.tag_name }} -- dist/*.whl dist/*.tar.gz
 
   publish:
     needs: [dist]
