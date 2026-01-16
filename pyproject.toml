@@ -84,13 +84,13 @@ annotation-style = "line"
 generate-hashes = true
 
 [tool.uv.dependency-groups]
-dev.requires-python = ">=3.14"
+dev.requires-python = ">=3.13"
 # other tools
-cog.requires-python = ">=3.14"
-ipython.requires-python = ">=3.14"
-mypy.requires-python = ">=3.14"
-notebook.requires-python = ">=3.14"
-nox.requires-python = ">=3.14"
+cog.requires-python = ">=3.13"
+ipython.requires-python = ">=3.13"
+mypy.requires-python = ">=3.13"
+notebook.requires-python = ">=3.13"
+nox.requires-python = ">=3.13"
 
 [tool.uv.build-backend]
 source-include = [ "tests/**" ]

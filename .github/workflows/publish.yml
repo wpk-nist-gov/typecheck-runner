@@ -22,6 +22,8 @@ jobs:
     permissions:
       id-token: write
       attestations: write
+    env:
+      DIST: "/tmp/biapp/dist"
 
     steps:
       - uses: actions/checkout@v6
@@ -29,29 +31,15 @@ jobs:
           persist-credentials: false
       - uses: hynek/build-and-inspect-python-package@v2
 
-  check-dist:
-    name: Extra checks
-    needs: [dist]
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-      - uses: actions/download-artifact@v7
-        with:
-          name: Packages
-          path: dist
+      # extra checks
       - uses: actions/setup-python@v6
         with:
           python-version-file: ".python-version"
-      - uses: hynek/setup-cached-uv@v2
-      # - uses: astral-sh/setup-uv@v7
 
       - name: Smoke test
         run: |
-          uv run --isolated --no-project --with dist/*.whl tests/test_smoke.py
-          uv run --isolated --no-project --with dist/*.tar.gz tests/test_smoke.py
+          uv run --isolated --no-project --with "${DIST}"/*.whl tests/test_smoke.py
+          uv run --isolated --no-project --with "${DIST}"/*.tar.gz tests/test_smoke.py
 
       - name: Check no changelog fragments
         if: github.event_name == 'release' && github.event.action == 'published'
@@ -67,11 +55,11 @@ jobs:
       - name: Check version
         if: github.event_name == 'release' && github.event.action == 'published'
         run: |
-          uv run --script tools/check_dist_version.py --version ${{ github.event.release.tag_name }} -- dist/*.whl dist/*.tar.gz
+          uv run --script tools/check_dist_version.py --version ${{ github.event.release.tag_name }} -- "${DIST}"/*.whl "${DIST}"/*.tar.gz
 
   publish:
     name: Publish package
-    needs: [check-dist]
+    needs: [dist]
     environment:
       name: pypi
     permissions:
