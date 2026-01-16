@@ -544,7 +544,9 @@ def _test(
     if not test_no_pytest:
         opts = combine_list_str(test_options or [])
         if not no_cov:
-            session.env["COVERAGE_FILE"] = str(Path(session.create_tmp()) / ".coverage")
+            session.env["COVERAGE_FILE"] = str(
+                Path(session.create_tmp()) / f".coverage-{sys.platform}"
+            )
 
             if not any(o.startswith("--cov") for o in opts):
                 opts.append(f"--cov={IMPORT_NAME}")
