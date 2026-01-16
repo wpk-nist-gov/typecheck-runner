@@ -20,23 +20,23 @@ jobs:
     name: Build and verify
     runs-on: ubuntu-latest
     env:
-      DIST: "/tmp/biapp/dist"
+      DIST: "/tmp/baipp/dist"
     permissions:
       id-token: write
       attestations: write
 
     steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: hynek/build-and-inspect-python-package@v2
+
       - run: |
           echo a "${DIST}"
           echo b $DIST
           ls "${DIST}"
           ls "${DIST}"/*.whl
           ls "${DIST}"/*.tar.gz
-
-      - uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-      - uses: hynek/build-and-inspect-python-package@v2
 
       # extra checks
       - uses: actions/setup-python@v6
