@@ -64,7 +64,7 @@ jobs:
     name: Publish package to testpypi
     needs: [dist]
     environment:
-      name: pypi
+      name: test-pypi
     permissions:
       id-token: write
     runs-on: ubuntu-latest
@@ -81,7 +81,7 @@ jobs:
           repository-url: https://test.pypi.org/legacy/
 
   publish:
-    name: Publish package
+    name: Publish package to pypi
     needs: [publish-testpypi]
     environment:
       name: pypi
