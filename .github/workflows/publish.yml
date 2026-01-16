@@ -26,6 +26,13 @@ jobs:
       attestations: write
 
     steps:
+      - run: |
+          echo a "${DIST}"
+          echo b $DIST
+          ls "${DIST}"
+          ls "${DIST}"/*.whl
+          ls "${DIST}"/*.tar.gz
+
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
@@ -35,13 +42,6 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version-file: ".python-version"
-
-      - run: |
-          echo a "${DIST}"
-          echo b $DIST
-          ls "${DIST}"
-          ls "${DIST}"/*.whl
-          ls "${DIST}"/*.tar.gz
 
       - name: Smoke test
         run: |
