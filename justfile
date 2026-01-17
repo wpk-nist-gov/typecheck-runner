@@ -162,7 +162,7 @@ _typecheck *check_options:
 
 # Run mypy (with optional args)
 [group("typecheck")]
-mypy *options: (_typecheck "-cmypy" options)
+mypy *options: (_typecheck "-cmypy[faster-cache]" options)
 
 # Run pyright (with optional args)
 [group("typecheck")]
@@ -201,7 +201,7 @@ pylint *options="src tests":
 
 # Run all checkers (with optional directories)
 [group("typecheck")]
-typecheck *options: (_typecheck "-cmypy -cbasedpyright" options)
+typecheck *options: (_typecheck "-cmypy[faster-cache] -cbasedpyright" options)
 
 # Run checkers on tools
 [group("tools")]

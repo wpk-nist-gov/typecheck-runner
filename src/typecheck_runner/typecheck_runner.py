@@ -90,6 +90,8 @@ def _get_python_executable(
     if venv is not None:
         return _get_python_executable_from_venv(venv)
 
+    if python_executable:
+        return python_executable.absolute()
     return python_executable
 
 
@@ -138,8 +140,12 @@ def _parse_command(
         path = Path(command).expanduser()
         checker = path.name
         path_str = str(path)
+
+        if path_which := shutil.which(path_str):
+            path_str = str(Path(path_which))
+
         return checker, [
-            shutil.which(path_str) or path_str,
+            path_str,
             *_maybe_add_check_argument(checker, args),
         ]
 
