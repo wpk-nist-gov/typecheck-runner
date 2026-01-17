@@ -43,7 +43,8 @@ jobs:
         shell: bash
       - name: typecheck
         run:
-          uvx -crequirements/lock/uvx-tools.txt nox -s ${{ env.python_version }}
+          uvx -c"requirements/lock/uvx-tools.txt" nox -s typecheck-${{
+          env.python_version }}
 
   build-package:
     name: Build & verify package
@@ -94,7 +95,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Test with nox
         run: >-
-          uvx -crequirements/lock/uvx-tools.txt nox -s test-${{
+          uvx -c"requirements/lock/uvx-tools.txt" nox -s test-${{
           matrix.python-version }} -- ++installpkg dist/*.whl
 
       - name: Upload coverage data
