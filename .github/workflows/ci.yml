@@ -124,11 +124,12 @@ jobs:
           pattern: coverage-data-*
           merge-multiple: true
       - name: Display structure of downloaded files
-        run: ls -lh .nox/test*/tmp/.coverage*
+        run: ls -aR
       - name: Run coverage
         run: |
-          uvx -crequirements/lock/uvx-tools.txt nox -s coverage
-          uvx -crequirements/lock/uvx-tools.txt coverage report --format markdown >> "$GITHUB_STEP_SUMMARY"
+          uvx -crequirements/lock/uvx-tools.txt nox -s coverage -- ++coverage combine html report markdown
+          cat coverage.md >> "$GITHUB_STEP_SUMMARY"
+        shell: bash
       - name: Upload HTML report if check failed.
         uses: actions/upload-artifact@v6
         with:

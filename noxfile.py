@@ -162,7 +162,9 @@ class SessionParams(DataclassParser):
     no_cov: bool = False
 
     # coverage
-    coverage: list[Literal["erase", "combine", "report", "html", "open"]] | None = None
+    coverage: (
+        list[Literal["erase", "combine", "report", "html", "open", "markdown"]] | None
+    ) = None
 
     # docs
     docs: (
@@ -647,6 +649,15 @@ def coverage(
         elif c == "open":
             open_webpage(path="htmlcov/index.html")
 
+        elif c == "markdown":
+            with Path("coverage.md").open("w", encoding="utf-8") as f:
+                uvx_run(
+                    session,
+                    "coverage",
+                    "report",
+                    "--format=markdown",
+                    stdout=f,
+                )
         else:
             uvx_run(
                 session,
