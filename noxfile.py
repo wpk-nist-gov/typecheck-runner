@@ -840,11 +840,12 @@ def typecheck(  # noqa: C901
         if c.endswith("-notebook"):
             session.run("just", c, external=True)
         elif c in {"mypy", "pyright", "basedpyright", "ty", "pyrefly"}:
+            checker = "mypy[faster-cache]" if c == "mypy" else c
             session.run(
                 "typecheck-runner",
                 *get_uvx_constraint_args(),
                 "--verbose",
-                f"--check={c}",
+                f"--check={checker}",
                 "--allow-errors",
                 external=False,
             )

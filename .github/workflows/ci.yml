@@ -35,9 +35,15 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version-file: ".python-version"
-      - uses: extractions/setup-just@v3
+
+      - name: Get python version
+        run: |
+          python_version=$(cat .python-version)
+          echo "python_version=${python_version}" >> "$GITHUB_ENV"
+        shell: bash
       - name: typecheck
-        run: just typecheck
+        run:
+          uvx -crequirements/lock/uvx-tools.txt nox -s ${{ env.python_version }}
 
   build-package:
     name: Build & verify package

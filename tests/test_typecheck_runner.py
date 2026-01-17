@@ -147,10 +147,9 @@ def test__get_python_executable_from_venv_no_cd(
     path = tmp_path.joinpath(location)
 
     with (
-        (
-            patch("typecheck_runner.typecheck_runner.sys.platform", "windows")
-            if windows
-            else contextlib.nullcontext()
+        patch(
+            "typecheck_runner.typecheck_runner.sys.platform",
+            "windows" if windows else "darwin",
         ),
         expected as e,
     ):
@@ -168,10 +167,9 @@ def test__get_python_executable_from_venv_cd(
     path = Path(location)
 
     with (
-        (
-            patch("typecheck_runner.typecheck_runner.sys.platform", "windows")
-            if windows
-            else contextlib.nullcontext()
+        patch(
+            "typecheck_runner.typecheck_runner.sys.platform",
+            "windows" if windows else "darwin",
         ),
         expected as e,
     ):
@@ -203,7 +201,10 @@ def test__get_python_executable(
     if venv is not None and venv != ".venv":
         make_fake_venv(False, example_path, venv)
 
-    with patch.dict("typecheck_runner.typecheck_runner.os.environ", {}, clear=True):
+    with (
+        patch.dict("typecheck_runner.typecheck_runner.os.environ", {}, clear=True),
+        patch("typecheck_runner.typecheck_runner.sys.platform", "darwin"),
+    ):
         out = typecheck_runner._get_python_executable(
             _pathify(python_executable), _pathify(venv), infer_venv
         )
@@ -361,7 +362,7 @@ def test__parser_command_uvx(
         pytest.param(
             "/path/to/mypy",
             "mypy",
-            ["/hello//path/to/mypy"],
+            ["/hello/path/to/mypy"],
             id="path",
         ),
         pytest.param(
@@ -373,13 +374,13 @@ def test__parser_command_uvx(
         pytest.param(
             "/path/to/mypy -b --c",
             "mypy",
-            ["/hello//path/to/mypy", "-b", "--c"],
+            ["/hello/path/to/mypy", "-b", "--c"],
             id="path with options",
         ),
         pytest.param(
             "/path/to/ty -b --c",
             "ty",
-            ["/hello//path/to/ty", "check", "-b", "--c"],
+            ["/hello/path/to/ty", "check", "-b", "--c"],
             id="path with options ty no check",
         ),
     ],
@@ -391,9 +392,10 @@ def test__parse_command_no_uvx(
     expected_command: str,
     expected_args: list[str],
 ) -> None:
+    args = [str(Path(expected_args[0])), *expected_args[1:]]
     assert typecheck_runner._parse_command(command, True, "", []) == (
         expected_command,
-        expected_args,
+        args,
     )
 
 
@@ -545,7 +547,8 @@ def test_main(
 ) -> None:
     assert not typecheck_runner.main(args)
     assert mocked_run_checker.call_args_list == [
-        call(*e, dry_run=False) for checker, e in zip(checkers, expecteds, strict=True)
+        call(*[str(Path(e[0])), *e[1:]], dry_run=False)
+        for checker, e in zip(checkers, expecteds, strict=True)
     ]
 
 
