@@ -399,6 +399,17 @@ def test__parse_command_no_uvx(
     )
 
 
+def test__parse_command_no_uvx_no_which() -> None:
+    with patch(
+        "typecheck_runner.typecheck_runner.shutil.which",
+        side_effect=lambda x: None,  # pyright: ignore[reportUnknownLambdaType]  # noqa: ARG005
+    ):
+        assert typecheck_runner._parse_command("hello -b --c", True, "", []) == (
+            "hello",
+            ["hello", "-b", "--c"],
+        )
+
+
 @pytest.mark.parametrize(
     ("checker", "version_flag", "python_flag"),
     [

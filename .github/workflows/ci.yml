@@ -103,7 +103,7 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: coverage-data-${{ matrix.os }}-${{ matrix.python-version }}
-          path: .nox/test-*/tmp/.coverage.*
+          path: .nox/test-*/tmp/.coverage*
           include-hidden-files: true
           if-no-files-found: ignore
 
