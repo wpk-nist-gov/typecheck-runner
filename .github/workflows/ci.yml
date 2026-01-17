@@ -97,6 +97,7 @@ jobs:
         run: >-
           uvx -c"requirements/lock/uvx-tools.txt" nox -s test-${{
           matrix.python-version }} -- ++installpkg dist/*.whl
+        shell: bash
 
       - name: Upload coverage data
         uses: actions/upload-artifact@v6
