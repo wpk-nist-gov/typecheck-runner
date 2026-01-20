@@ -145,6 +145,7 @@ jobs:
           persist-credentials: false
           sparse-checkout: |
             .python-version
+            noxfile.py
             tools
             ${{ env.UVX_CONSTRAINT }}
           sparse-checkout-cone-mode: false
