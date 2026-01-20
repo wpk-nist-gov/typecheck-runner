@@ -104,7 +104,7 @@ jobs:
         include:
           - os: windows-latest
             python-version:
-              $${{ needs.build-package.outputs.default-python-version }}
+              ${{ needs.build-package.outputs.default-python-version }}
     steps:
       - uses: actions/checkout@v6
         with:
