@@ -12,6 +12,8 @@ concurrency:
 
 env:
   FORCE_COLOR: "3"
+  UVX_CONSTRAINT: requirements/lock/uvx-tools.txt
+  UVX_COMMAND: uvx -c'requirements/lock/uvx-tools.txt'
 
 jobs:
   lint:
@@ -24,7 +26,7 @@ jobs:
         with:
           python-version-file: ".python-version"
       - name: lint
-        run: uvx -crequirements/lock/uvx-tools.txt prek -a
+        run: $UVX_COMMAND prek -a
 
   typecheck:
     name: Typecheck package
@@ -42,9 +44,8 @@ jobs:
           echo "python_version=${python_version}" >> "$GITHUB_ENV"
         shell: bash
       - name: typecheck
-        run:
-          uvx -c"requirements/lock/uvx-tools.txt" nox -s typecheck-${{
-          env.python_version }}
+        run: $UVX_COMMAND nox -s typecheck-${{ env.python_version }}
+        shell: bash
 
   build-package:
     name: Build & verify package
@@ -95,15 +96,15 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Test with nox
         run: >-
-          uvx -c"requirements/lock/uvx-tools.txt" nox -s test-${{
-          matrix.python-version }} -- ++installpkg dist/*.whl
+          $UVX_COMMAND nox -s test-${{ matrix.python-version }} -- ++installpkg
+          dist/*.whl
         shell: bash
 
       - name: Upload coverage data
         uses: actions/upload-artifact@v6
         with:
           name: coverage-data-${{ matrix.os }}-${{ matrix.python-version }}
-          path: ./**/.nox/test-*/tmp/.coverage*
+          path: .nox/test-*/tmp/.coverage*
           include-hidden-files: true
           if-no-files-found: ignore
 
@@ -114,6 +115,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+        with:
+          sparse-checkout: |
+            .python_version
+            ${{ env.UVX_CONSTRAINT }}
       - uses: astral-sh/setup-uv@v7
       - uses: actions/setup-python@v6
         with:
@@ -122,12 +127,14 @@ jobs:
         uses: actions/download-artifact@v7
         with:
           pattern: coverage-data-*
+          path: .nox
           merge-multiple: true
       - name: Display structure of downloaded files
         run: ls -aR
       - name: Run coverage
         run: |
-          uvx -crequirements/lock/uvx-tools.txt nox -s coverage -- ++coverage combine html report markdown
+          $UVX_COMMAND nox -s coverage -- ++coverage combine html report markdown
+          cat coverage.md
           cat coverage.md >> "$GITHUB_STEP_SUMMARY"
         shell: bash
       - name: Upload HTML report if check failed.
