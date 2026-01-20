@@ -128,11 +128,6 @@ jobs:
             tools
             ${{ env.UVX_CONSTRAINT }}
           sparse-checkout-cone-mode: false
-
-      - uses: astral-sh/setup-uv@v7
-      - uses: actions/setup-python@v6
-        with:
-          python-version-file: ".python-version"
       - name: Download individual coverage reports
         uses: actions/download-artifact@v7
         with:
@@ -141,6 +136,11 @@ jobs:
           merge-multiple: true
       - name: Display structure of downloaded files
         run: ls -aR
+
+      - uses: astral-sh/setup-uv@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version-file: ".python-version"
       - name: Run coverage
         run: |
           $UVX_COMMAND nox -s coverage -- ++coverage combine html report markdown
