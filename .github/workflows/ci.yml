@@ -13,7 +13,7 @@ concurrency:
 env:
   FORCE_COLOR: "3"
   UVX_CONSTRAINT: requirements/lock/uvx-tools.txt
-  UVX_COMMAND: uvx -c'requirements/lock/uvx-tools.txt'
+  UVX_COMMAND: uvx -crequirements/lock/uvx-tools.txt
 
 jobs:
   lint:
