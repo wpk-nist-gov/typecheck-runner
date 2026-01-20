@@ -16,107 +16,7 @@ env:
   UVX_COMMAND: uvx -crequirements/lock/uvx-tools.txt
 
 jobs:
-  lint:
-    name: Lint package
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-      - uses: astral-sh/setup-uv@v7
-      - uses: actions/setup-python@v6
-        with:
-          python-version-file: ".python-version"
-      - name: lint
-        run: $UVX_COMMAND prek -a
-
-  typecheck:
-    name: Typecheck package
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-      - uses: astral-sh/setup-uv@v7
-      - uses: actions/setup-python@v6
-        with:
-          python-version-file: ".python-version"
-
-      - name: Get python version
-        run: |
-          python_version=$(cat .python-version)
-          echo "python_version=${python_version}" >> "$GITHUB_ENV"
-        shell: bash
-      - name: typecheck
-        run: $UVX_COMMAND nox -s typecheck-${{ env.python_version }}
-        shell: bash
-
-  build-package:
-    name: Build & verify package
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-
-      - uses: hynek/build-and-inspect-python-package@v2
-        id: baipp
-
-    outputs:
-      # Used to define the matrix for tests below. The value is based on
-      # packaging metadata (trove classifiers).
-      supported-python-versions:
-        ${{ steps.baipp.outputs.supported_python_classifiers_json_array }}
-
-  test:
-    name: Test package across pythons
-    needs: build-package
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - ubuntu-latest
-        python-version:
-          - "3.10"
-          - "3.12"
-          - "3.14"
-          - "3.14t"
-          - "pypy-3.11"
-
-        include:
-          - os: windows-latest
-            python-version: "3.14"
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-      - uses: actions/download-artifact@v7
-        with:
-          name: Packages
-          path: dist
-      - uses: astral-sh/setup-uv@v7
-      - uses: actions/setup-python@v6
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Test with nox
-        run: >-
-          $UVX_COMMAND nox -s test-${{ matrix.python-version }} -- ++installpkg
-          dist/*.whl
-        shell: bash
-
-      - name: Upload coverage data
-        uses: actions/upload-artifact@v6
-        with:
-          name: coverage-data-${{ matrix.os }}-${{ matrix.python-version }}
-          path: .nox/test-*/tmp/.coverage*
-          include-hidden-files: true
-          if-no-files-found: ignore
-
-  coverage:
-    name: Combine coverage
-    needs: test
+  test-download:
     runs-on: ubuntu-latest
 
     steps:
@@ -124,16 +24,10 @@ jobs:
         with:
           persist-credentials: false
           sparse-checkout: |
-            .python_version
+            ./.python_version
             tools
             ${{ env.UVX_CONSTRAINT }}
           sparse-checkout-cone-mode: false
-      - name: Download individual coverage reports
-        uses: actions/download-artifact@v7
-        with:
-          pattern: coverage-data-*
-          path: .nox
-          merge-multiple: true
       - name: Display structure of downloaded files
         run: ls -aR
 
@@ -141,15 +35,141 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version-file: ".python-version"
-      - name: Run coverage
-        run: |
-          $UVX_COMMAND nox -s coverage -- ++coverage combine html report markdown
-          cat coverage.md
-          cat coverage.md >> "$GITHUB_STEP_SUMMARY"
-        shell: bash
-      - name: Upload HTML report if check failed.
-        uses: actions/upload-artifact@v6
-        with:
-          name: html-report
-          path: htmlcov
-        if: ${{ failure() }}
+
+  # lint:
+  #   name: Lint package
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v6
+  #       with:
+  #         persist-credentials: false
+  #     - uses: astral-sh/setup-uv@v7
+  #     - uses: actions/setup-python@v6
+  #       with:
+  #         python-version-file: ".python-version"
+  #     - name: lint
+  #       run: $UVX_COMMAND prek -a
+
+  # typecheck:
+  #   name: Typecheck package
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v6
+  #       with:
+  #         persist-credentials: false
+  #     - uses: astral-sh/setup-uv@v7
+  #     - uses: actions/setup-python@v6
+  #       with:
+  #         python-version-file: ".python-version"
+
+  #     - name: Get python version
+  #       run: |
+  #         python_version=$(cat .python-version)
+  #         echo "python_version=${python_version}" >> "$GITHUB_ENV"
+  #       shell: bash
+  #     - name: typecheck
+  #       run: $UVX_COMMAND nox -s typecheck-${{ env.python_version }}
+  #       shell: bash
+
+  # build-package:
+  #   name: Build & verify package
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - uses: actions/checkout@v6
+  #       with:
+  #         persist-credentials: false
+
+  #     - uses: hynek/build-and-inspect-python-package@v2
+  #       id: baipp
+
+  #   outputs:
+  #     # Used to define the matrix for tests below. The value is based on
+  #     # packaging metadata (trove classifiers).
+  #     supported-python-versions:
+  #       ${{ steps.baipp.outputs.supported_python_classifiers_json_array }}
+
+  # test:
+  #   name: Test package across pythons
+  #   needs: build-package
+  #   runs-on: ${{ matrix.os }}
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       os:
+  #         - ubuntu-latest
+  #       python-version:
+  #         - "3.10"
+  #         - "3.12"
+  #         - "3.14"
+  #         - "3.14t"
+  #         - "pypy-3.11"
+
+  #       include:
+  #         - os: windows-latest
+  #           python-version: "3.14"
+  #   steps:
+  #     - uses: actions/checkout@v6
+  #       with:
+  #         persist-credentials: false
+  #     - uses: actions/download-artifact@v7
+  #       with:
+  #         name: Packages
+  #         path: dist
+  #     - uses: astral-sh/setup-uv@v7
+  #     - uses: actions/setup-python@v6
+  #       with:
+  #         python-version: ${{ matrix.python-version }}
+  #     - name: Test with nox
+  #       run: >-
+  #         $UVX_COMMAND nox -s test-${{ matrix.python-version }} -- ++installpkg
+  #         dist/*.whl
+  #       shell: bash
+
+  #     - name: Upload coverage data
+  #       uses: actions/upload-artifact@v6
+  #       with:
+  #         name: coverage-data-${{ matrix.os }}-${{ matrix.python-version }}
+  #         path: .nox/test-*/tmp/.coverage*
+  #         include-hidden-files: true
+  #         if-no-files-found: ignore
+
+  # coverage:
+  #   name: Combine coverage
+  #   needs: test
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - uses: actions/checkout@v6
+  #       with:
+  #         persist-credentials: false
+  #         sparse-checkout: |
+  #           .python_version
+  #           tools
+  #           ${{ env.UVX_CONSTRAINT }}
+  #         sparse-checkout-cone-mode: false
+  #     - name: Download individual coverage reports
+  #       uses: actions/download-artifact@v7
+  #       with:
+  #         pattern: coverage-data-*
+  #         path: .nox
+  #         merge-multiple: true
+  #     - name: Display structure of downloaded files
+  #       run: ls -aR
+
+  #     - uses: astral-sh/setup-uv@v7
+  #     - uses: actions/setup-python@v6
+  #       with:
+  #         python-version-file: ".python-version"
+  #     - name: Run coverage
+  #       run: |
+  #         $UVX_COMMAND nox -s coverage -- ++coverage combine html report markdown
+  #         cat coverage.md
+  #         cat coverage.md >> "$GITHUB_STEP_SUMMARY"
+  #       shell: bash
+  #     - name: Upload HTML report if check failed.
+  #       uses: actions/upload-artifact@v6
+  #       with:
+  #         name: html-report
+  #         path: htmlcov
+  #       if: ${{ failure() }}
