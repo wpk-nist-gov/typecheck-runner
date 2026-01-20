@@ -162,7 +162,9 @@ class SessionParams(DataclassParser):
     no_cov: bool = False
 
     # coverage
-    coverage: list[Literal["erase", "combine", "report", "html", "open"]] | None = None
+    coverage: (
+        list[Literal["erase", "combine", "report", "html", "open", "markdown"]] | None
+    ) = None
 
     # docs
     docs: (
@@ -544,7 +546,9 @@ def _test(
     if not test_no_pytest:
         opts = combine_list_str(test_options or [])
         if not no_cov:
-            session.env["COVERAGE_FILE"] = str(Path(session.create_tmp()) / ".coverage")
+            session.env["COVERAGE_FILE"] = str(
+                Path(session.create_tmp()) / f".coverage-{sys.platform}"
+            )
 
             if not any(o.startswith("--cov") for o in opts):
                 opts.append(f"--cov={IMPORT_NAME}")
@@ -645,6 +649,15 @@ def coverage(
         elif c == "open":
             open_webpage(path="htmlcov/index.html")
 
+        elif c == "markdown":
+            with Path("coverage.md").open("w", encoding="utf-8") as f:
+                uvx_run(
+                    session,
+                    "coverage",
+                    "report",
+                    "--format=markdown",
+                    stdout=f,
+                )
         else:
             uvx_run(
                 session,
@@ -838,11 +851,12 @@ def typecheck(  # noqa: C901
         if c.endswith("-notebook"):
             session.run("just", c, external=True)
         elif c in {"mypy", "pyright", "basedpyright", "ty", "pyrefly"}:
+            checker = "mypy[faster-cache]" if c == "mypy" else c
             session.run(
                 "typecheck-runner",
                 *get_uvx_constraint_args(),
                 "--verbose",
-                f"--check={c}",
+                f"--check={checker}",
                 "--allow-errors",
                 external=False,
             )

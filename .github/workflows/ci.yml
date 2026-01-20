@@ -1,0 +1,167 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_COLOR: "3"
+  UVX_CONSTRAINT: requirements/lock/uvx-tools.txt
+  UVX_COMMAND: uvx -crequirements/lock/uvx-tools.txt
+
+jobs:
+  build-package:
+    name: Build & verify package
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - uses: hynek/build-and-inspect-python-package@v2
+        id: baipp
+
+      - name: Set python version parameters
+        id: versions
+        shell: python
+        run: |
+          import os
+          import json
+          from pathlib import Path
+
+          python_versions = ${{ steps.baipp.outputs.supported_python_classifiers_json_array }}
+          default_python_version = Path(".python-version").read_text().strip()
+
+          matrix_test_python = [ *python_versions, f"{default_python_version}t", f"pypy-3.11" ]
+
+          with open(os.getenv("GITHUB_OUTPUT"), "a") as f:
+            f.write(f"{default_python_version=:s}\n")
+            f.write(f"matrix_test_python={json.dumps(matrix_test_python)}\n")
+
+    outputs:
+      # Used to define the matrix for tests below. The value is based on
+      # packaging metadata (trove classifiers).
+      supported-python-versions:
+        ${{ steps.baipp.outputs.supported_python_classifiers_json_array }}
+      default-python-version:
+        ${{ steps.versions.outputs.default_python_version }}
+      matrix-test-python: ${{ steps.versions.outputs.matrix_test_python }}
+
+  lint:
+    name: Lint package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: j178/prek-action@v1
+        with:
+          extra-args: --all-files --verbose
+
+  typecheck:
+    name: Typecheck package
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version-file: ".python-version"
+      - name: Get python version
+        run: |
+          python_version=$(cat .python-version)
+          echo "python_version=${python_version}" >> "$GITHUB_ENV"
+        shell: bash
+      - name: typecheck
+        run: $UVX_COMMAND nox -s typecheck-${{ env.python_version }}
+        shell: bash
+
+  test:
+    name: Test package across pythons
+    needs: build-package
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+        python-version:
+          ${{ fromJson(needs.build-package.outputs.matrix-test-python) }}
+        include:
+          - os: windows-latest
+            python-version:
+              ${{ needs.build-package.outputs.default-python-version }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v7
+        with:
+          name: Packages
+          path: dist
+      - uses: astral-sh/setup-uv@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Test with nox
+        run: >-
+          $UVX_COMMAND nox -s test-${{ matrix.python-version }} -- ++installpkg
+          dist/*.whl
+        shell: bash
+
+      - name: Upload coverage data
+        uses: actions/upload-artifact@v6
+        with:
+          name: coverage-data-${{ matrix.os }}-${{ matrix.python-version }}
+          path: .nox/test-*/tmp/.coverage*
+          include-hidden-files: true
+          if-no-files-found: ignore
+
+  coverage:
+    name: Combine coverage
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Download individual coverage reports
+        uses: actions/download-artifact@v7
+        with:
+          pattern: coverage-data-*
+          path: .nox
+          merge-multiple: true
+      - name: Display structure of downloaded files
+        run: ls -aR
+
+      - uses: astral-sh/setup-uv@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version-file: ".python-version"
+      - name: Run coverage
+        run: |
+          $UVX_COMMAND nox -s coverage -- ++coverage combine html report markdown
+          cat coverage.md
+          cat coverage.md >> "$GITHUB_STEP_SUMMARY"
+        shell: bash
+      - name: Upload HTML report if check failed.
+        uses: actions/upload-artifact@v6
+        with:
+          name: html-report
+          path: htmlcov
+        if: ${{ failure() }}
