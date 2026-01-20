@@ -13,7 +13,6 @@ env:
   FORCE_COLOR: "3"
   UVX_CONSTRAINT: requirements/lock/uvx-tools.txt
   UVX_COMMAND: uvx -crequirements/lock/uvx-tools.txt
-  DEFAULT_PYTHON_VERSION: "3.14"
 
 jobs:
   build-package:
@@ -89,7 +88,7 @@ jobs:
 
         include:
           - os: windows-latest
-            python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
+            python-version: "3.14"
     steps:
       - uses: actions/checkout@v6
         with:
