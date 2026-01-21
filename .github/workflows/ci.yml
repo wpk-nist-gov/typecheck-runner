@@ -91,7 +91,7 @@ jobs:
       - name: Run prek
         run: >-
           $UVX_COMMAND prek run --show-diff-on-failure --color=always
-          --all-files --hook-stage=manual cog-readme
+          --all-files --hook-stage=manual cog-readme requirements
 
   typecheck:
     name: Typecheck package

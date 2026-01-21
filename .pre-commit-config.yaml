@@ -8,6 +8,8 @@ ci:
   skip:
     - cog-readme
     - typecheck-runner
+    - uv-lock
+    - pip-compile
 
 default_install_hook_types:
   - pre-commit
