@@ -5,6 +5,7 @@
 ci:
   autofix_commit_msg: "style: pre-commit fixes"
   autoupdate_schedule: "weekly"
+  skip: cog-readme
 
 default_install_hook_types:
   - pre-commit
