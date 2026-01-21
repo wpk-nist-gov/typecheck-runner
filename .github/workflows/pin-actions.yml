@@ -6,7 +6,9 @@ on:
     - cron: "30 22 * * 4"
   workflow_dispatch:
 
-permissions: {}
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
   pinact:
@@ -21,6 +23,3 @@ jobs:
 
       - name: Pin actions
         uses: suzuki-shunsuke/pinact-action@3d49c6412901042473ffa78becddab1aea46bbea # v1.3.1
-        with:
-          app_id: ${{vars.APP_ID}}
-          app_private_key: ${{secrets.APP_PRIVATE_KEY}}
