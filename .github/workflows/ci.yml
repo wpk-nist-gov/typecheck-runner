@@ -38,7 +38,8 @@ jobs:
           python_versions = ${{ steps.baipp.outputs.supported_python_classifiers_json_array }}
           default_python_version = Path(".python-version").read_text().strip()
 
-          matrix_test_python = [ *python_versions, f"{default_python_version}t", f"pypy-3.11" ]
+          # min max and default pythons
+          matrix_test_python = list({ python_versions[0], python_versions[-1], default_python_version, f"pypy-3.11" })
 
           with open(os.getenv("GITHUB_OUTPUT"), "a") as f:
             f.write(f"{default_python_version=:s}\n")
@@ -54,6 +55,7 @@ jobs:
       matrix-test-python: ${{ steps.versions.outputs.matrix_test_python }}
 
   lint:
+    # only run checks not covered by pre-commit.ci
     name: Lint package
     runs-on: ubuntu-latest
     steps:
@@ -62,7 +64,7 @@ jobs:
           persist-credentials: false
       - uses: j178/prek-action@v1
         with:
-          extra-args: --all-files --verbose
+          extra-args: --all-files --verbose cog-readme
 
   typecheck:
     name: Typecheck package
