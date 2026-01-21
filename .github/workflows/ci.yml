@@ -82,6 +82,21 @@ jobs:
           --all-files --hook-stage=manual cog-readme requirements
           validate-pyproject-schema-store sp-repo-review cruft actionlint
 
+  pinact:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Pin actions
+        uses: suzuki-shunsuke/pinact-action@3d49c6412901042473ffa78becddab1aea46bbea # v1.3.1
+        with:
+          skip_push: "true"
+
   typecheck:
     name: Typecheck package
     runs-on: ${{ matrix.os }}
