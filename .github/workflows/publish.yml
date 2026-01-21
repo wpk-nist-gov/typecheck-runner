@@ -3,10 +3,10 @@ on:
   workflow_dispatch:
   release:
     types: [published]
-  # these covered by ci?
-  # pull_request:
-  # push:
-  #   branches: [main]
+    # these covered by ci?
+    # pull_request:
+    # push:
+    #   branches: [main]
 
 env:
   FORCE_COLOR: "3"
@@ -76,7 +76,7 @@ jobs:
           path: dist
 
       - name: Publish to testpypi
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@v1.13.0
         with:
           repository-url: https://test.pypi.org/legacy/
 
@@ -96,4 +96,4 @@ jobs:
           path: dist
 
       - name: Publish to pypi
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@v1.13.0

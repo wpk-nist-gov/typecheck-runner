@@ -5,19 +5,20 @@
 ci:
   autofix_commit_msg: "style: pre-commit fixes"
   autoupdate_schedule: "weekly"
-  skip: cog-readme
+  skip:
+    - cog-readme
+    - typecheck-runner
+    - uv-lock
+    - pip-compile
 
 default_install_hook_types:
   - pre-commit
   - commit-msg
 repos:
-  # * meta hooks
   - repo: meta
     hooks:
       - id: check-hooks-apply
-        stages: [manual]
       - id: check-useless-excludes
-        stages: [manual]
 
   # * sync dependencies
   - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
@@ -212,8 +213,6 @@ repos:
           - "--group=typecheck"
           - "--exclude=pylint"
           - "--requirements=requirements/lock/uvx-tools.txt"
-          # - "--requirements-include=mypy"
-          # - "--requirements-include=orjson"
           - "--requirements-include=basedpyright"
           - "--requirements-include=ty"
           - "--requirements-include=pyrefly"

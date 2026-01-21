@@ -38,7 +38,8 @@ jobs:
           python_versions = ${{ steps.baipp.outputs.supported_python_classifiers_json_array }}
           default_python_version = Path(".python-version").read_text().strip()
 
-          matrix_test_python = [ *python_versions, f"{default_python_version}t", f"pypy-3.11" ]
+          # min max and default pythons
+          matrix_test_python = list({ python_versions[0], python_versions[-1], default_python_version, f"pypy-3.11" })
 
           with open(os.getenv("GITHUB_OUTPUT"), "a") as f:
             f.write(f"{default_python_version=:s}\n")
@@ -53,16 +54,45 @@ jobs:
         ${{ steps.versions.outputs.default_python_version }}
       matrix-test-python: ${{ steps.versions.outputs.matrix_test_python }}
 
+  # lint:
+  #   # only run checks not covered by pre-commit.ci
+  #   name: Lint package
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v6
+  #       with:
+  #         persist-credentials: false
+  #     - uses: j178/prek-action@v1
+  #       with:
+  #         extra-args: --all-files --verbose --hook-stage=manual
+
   lint:
+    # only run checks not covered by pre-commit.ci
     name: Lint package
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
-      - uses: j178/prek-action@v1
+      - uses: astral-sh/setup-uv@v7
+      - uses: actions/setup-python@v6
         with:
-          extra-args: --all-files --verbose
+          python-version-file: ".python-version"
+      # from https://github.com/j178/prek-action/blob/main/action.yaml
+      - name: Setup cache
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.cache/prek
+            ~\AppData\Local\prek
+          key:
+            prek-v1|${{ runner.os }}|${{ runner.arch }}|${{ env.pythonLocation
+            }}|${{ hashFiles('./**/.pre-commit-config.yaml') }}
+      - name: Run prek
+        run: >-
+          $UVX_COMMAND prek run --show-diff-on-failure --color=always
+          --all-files --hook-stage=manual cog-readme requirements
+          validate-pyproject-schema-store sp-repo-review cruft actionlint
 
   typecheck:
     name: Typecheck package
