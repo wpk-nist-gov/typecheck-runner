@@ -213,8 +213,6 @@ repos:
           - "--group=typecheck"
           - "--exclude=pylint"
           - "--requirements=requirements/lock/uvx-tools.txt"
-          # - "--requirements-include=mypy"
-          # - "--requirements-include=orjson"
           - "--requirements-include=basedpyright"
           - "--requirements-include=ty"
           - "--requirements-include=pyrefly"
