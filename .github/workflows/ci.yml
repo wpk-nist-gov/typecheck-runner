@@ -14,6 +14,8 @@ env:
   UVX_CONSTRAINT: requirements/lock/uvx-tools.txt
   UVX_COMMAND: uvx -crequirements/lock/uvx-tools.txt
 
+permissions: {}
+
 jobs:
   build-package:
     name: Build & verify package
@@ -30,12 +32,15 @@ jobs:
       - name: Set python version parameters
         id: versions
         shell: python
+        env:
+          python_classifiers:
+            ${{ steps.baipp.outputs.supported_python_classifiers_json_array }}
         run: |
           import os
           import json
           from pathlib import Path
 
-          python_versions = ${{ steps.baipp.outputs.supported_python_classifiers_json_array }}
+          python_versions = json.loads(os.getenv("python_classifiers"))
           default_python_version = Path(".python-version").read_text().strip()
 
           # min max and default pythons
@@ -44,7 +49,6 @@ jobs:
           with open(os.getenv("GITHUB_OUTPUT"), "a") as f:
             f.write(f"{default_python_version=:s}\n")
             f.write(f"matrix_test_python={json.dumps(matrix_test_python)}\n")
-            f.write(f"matrix_test_python_string"={'\n'.join(matrix_test_python)}")
 
     outputs:
       supported-python-versions:
@@ -52,8 +56,6 @@ jobs:
       default-python-version:
         ${{ steps.versions.outputs.default_python_version }}
       matrix-test-python: ${{ steps.versions.outputs.matrix_test_python }}
-      matrix-test-python-string:
-        ${{ steps.versions.outputs.matrix_test_python_string }}
 
   lint:
     # only run checks not covered by pre-commit.ci
@@ -68,7 +70,7 @@ jobs:
           python-version-file: ".python-version"
       - uses: hynek/setup-cached-uv@757bedc3f972eb7227a1aa657651f15a8527c817 # v2.3.0
         with:
-          cache-dependency-path: requirements/lock/uvx-tools.txt
+          cache-dependency-path: .pre-commit-config.yaml
       # from https://github.com/j178/prek-action/blob/main/action.yaml
       - name: Setup prek cache
         uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
@@ -110,7 +112,9 @@ jobs:
           echo "python_version=${python_version}" >> "$GITHUB_ENV"
         shell: bash
       - name: typecheck
-        run: $UVX_COMMAND nox -s typecheck-${{ env.python_version }}
+        env:
+          python_version: ${{ env.python_version }}
+        run: $UVX_COMMAND nox -s typecheck-"$python_version"
         shell: bash
 
   test:
@@ -144,9 +148,10 @@ jobs:
           cache-dependency-path: uv.lock
 
       - name: Test with nox
+        env:
+          python_version: ${{ matrix.python-version }}
         run: >-
-          $UVX_COMMAND nox -s test-${{ matrix.python-version }} -- ++installpkg
-          dist/*.whl
+          $UVX_COMMAND nox -s test-"$python_version" -- ++installpkg dist/*.whl
         shell: bash
 
       - name: Upload coverage data

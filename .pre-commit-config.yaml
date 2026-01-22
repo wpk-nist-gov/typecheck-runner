@@ -200,6 +200,14 @@ repos:
           - "github.com/wasilibs/go-shellcheck/cmd/shellcheck@v0.11.1"
         priority: 0
 
+  - repo: https://github.com/zizmorcore/zizmor-pre-commit
+    # Zizmor version.
+    rev: v1.22.0
+    hooks:
+      # Run the linter.
+      - id: zizmor
+        alias: workflows
+
   # * typecheck
   # ** sync dependencies
   - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
