@@ -110,8 +110,6 @@ ignore = [
     "PC140",  # do this externally
     "PC160",  # using typos
     "PC170",  # pygrep
-    "PC901",  # ci message
-    "RTD",
     "PY004",  # no docs for simple tool
     "NOX103", # I prefer using "nox.options.sessions"
 ]
