@@ -14,6 +14,8 @@ env:
   UVX_CONSTRAINT: requirements/lock/uvx-tools.txt
   UVX_COMMAND: uvx -crequirements/lock/uvx-tools.txt
 
+permissions: {}
+
 jobs:
   build-package:
     name: Build & verify package
@@ -30,12 +32,15 @@ jobs:
       - name: Set python version parameters
         id: versions
         shell: python
+        env:
+          python_classifiers:
+            ${{ steps.baipp.outputs.supported_python_classifiers_json_array }}
         run: |
           import os
           import json
           from pathlib import Path
 
-          python_versions = ${{ steps.baipp.outputs.supported_python_classifiers_json_array }}
+          python_versions = json.loads(os.getenv("python_classifiers"))
           default_python_version = Path(".python-version").read_text().strip()
 
           # min max and default pythons
@@ -60,12 +65,14 @@ jobs:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
-      - uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
       - uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version-file: ".python-version"
+      - uses: hynek/setup-cached-uv@757bedc3f972eb7227a1aa657651f15a8527c817 # v2.3.0
+        with:
+          cache-dependency-path: .pre-commit-config.yaml
       # from https://github.com/j178/prek-action/blob/main/action.yaml
-      - name: Setup cache
+      - name: Setup prek cache
         uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
         with:
           path: |
@@ -93,17 +100,21 @@ jobs:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
-      - uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
       - uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version-file: ".python-version"
+      - uses: hynek/setup-cached-uv@757bedc3f972eb7227a1aa657651f15a8527c817 # v2.3.0
+        with:
+          cache-dependency-path: uv.lock
       - name: Get python version
         run: |
           python_version=$(cat .python-version)
           echo "python_version=${python_version}" >> "$GITHUB_ENV"
         shell: bash
       - name: typecheck
-        run: $UVX_COMMAND nox -s typecheck-${{ env.python_version }}
+        env:
+          python_version: ${{ env.python_version }}
+        run: $UVX_COMMAND nox -s typecheck-"$python_version"
         shell: bash
 
   test:
@@ -129,14 +140,18 @@ jobs:
         with:
           name: Packages
           path: dist
-      - uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
       - uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ matrix.python-version }}
+      - uses: hynek/setup-cached-uv@757bedc3f972eb7227a1aa657651f15a8527c817 # v2.3.0
+        with:
+          cache-dependency-path: uv.lock
+
       - name: Test with nox
+        env:
+          python_version: ${{ matrix.python-version }}
         run: >-
-          $UVX_COMMAND nox -s test-${{ matrix.python-version }} -- ++installpkg
-          dist/*.whl
+          $UVX_COMMAND nox -s test-"$python_version" -- ++installpkg dist/*.whl
         shell: bash
 
       - name: Upload coverage data
@@ -165,10 +180,12 @@ jobs:
       - name: Display structure of downloaded files
         run: ls -aR
 
-      - uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
       - uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version-file: ".python-version"
+      - uses: hynek/setup-cached-uv@757bedc3f972eb7227a1aa657651f15a8527c817 # v2.3.0
+        with:
+          cache-dependency-path: requirements/lock/uvx-tools.txt
       - name: Run coverage
         run: |
           $UVX_COMMAND nox -s coverage -- ++coverage combine html report markdown

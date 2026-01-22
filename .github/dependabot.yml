@@ -5,6 +5,9 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    cooldown:
+      # https://blog.yossarian.net/2025/11/21/We-should-all-be-using-dependency-cooldowns
+      default-days: 7
     groups:
       actions:
         patterns:
@@ -13,3 +16,5 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 7

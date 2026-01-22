@@ -57,8 +57,11 @@ jobs:
 
       - name: Check version
         if: github.event_name == 'release' && github.event.action == 'published'
-        run: |
-          uv run --script tools/check_dist_version.py --version ${{ github.event.release.tag_name }} -- "${DIST}"/*.whl "${DIST}"/*.tar.gz
+        env:
+          tag_name: ${{ github.event.release.tag_name }}
+        run: >-
+          uv run --script tools/check_dist_version.py --version "$tag_name" --
+          "${DIST}"/*.whl "${DIST}"/*.tar.gz
 
   publish-testpypi:
     name: Publish package to testpypi
