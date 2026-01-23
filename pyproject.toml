@@ -105,7 +105,6 @@ explicit = true
 
 [tool.repo-review]
 ignore = [
-    "GH",     # enable for actions
     "PC111",  # use doccmd instead of blacken-docs
     "PC140",  # do this externally
     "PC160",  # using typos
