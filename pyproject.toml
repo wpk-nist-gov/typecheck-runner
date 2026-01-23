@@ -69,6 +69,7 @@ test-extras = [
 typecheck = [
     { include-group = "pylint" },
     { include-group = "pytest" },
+    { include-group = "typecheck-runner" },
 ]
 
 # * uv -------------------------------------------------------------------------
@@ -210,7 +211,6 @@ exclude = [
     "**/.mypy_cache",
     "**/.numba_cache",
 ]
-pythonVersion = "3.11"
 typeCheckingMode = "strict"
 # typeCheckingMode = "standard"
 # strict = [

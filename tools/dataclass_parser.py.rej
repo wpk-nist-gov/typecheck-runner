@@ -1,0 +1,29 @@
+diff a/tools/dataclass_parser.py b/tools/dataclass_parser.py	(rejected hunks)
+@@ -33,7 +33,6 @@ class Example(DataclassParser):
+ 
+ from __future__ import annotations
+ 
+-import sys
+ from argparse import ArgumentParser
+ from dataclasses import (
+     dataclass,
+@@ -55,6 +54,7 @@ from typing import (
+ )
+ 
+ if TYPE_CHECKING:
++    import sys
+     from collections.abc import Callable, Container, Sequence
+ 
+     if sys.version_info >= (3, 11):
+@@ -63,11 +63,6 @@ if TYPE_CHECKING:
+         from typing_extensions import Self
+ 
+ 
+-if sys.version_info < (3, 10):
+-    msg = "Require python >= 3.10"
+-    raise RuntimeError(msg)
+-
+-
+ _NoneType = type(None)
+ 
+ UNDEFINED = cast(
