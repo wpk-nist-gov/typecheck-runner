@@ -68,7 +68,7 @@ repos:
     rev: 2025.11.21
     hooks:
       - id: validate-pyproject
-        name: validate-pyproject-schema-store
+        alias: validate-pyproject-schema-store
         stages: [manual]
   # ** repo review
   - repo: https://github.com/scientific-python/cookie
