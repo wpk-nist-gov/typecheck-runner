@@ -116,7 +116,7 @@ repos:
           - "--command"
           - "ruff format"
         additional_dependencies:
-          - ruff==0.14.9
+          - ruff==0.14.14
 
   # * Spelling
   # ** typos

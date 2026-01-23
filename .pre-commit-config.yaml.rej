@@ -7,7 +7,7 @@ diff a/.pre-commit-config.yaml b/.pre-commit-config.yaml	(rejected hunks)
    autofix_commit_msg: "style: pre-commit fixes"
    autoupdate_schedule: "weekly"
 +  skip: []
- 
+
  default_install_hook_types:
    - pre-commit
 @@ -30,7 +32,7 @@ repos:
@@ -16,7 +16,7 @@ diff a/.pre-commit-config.yaml b/.pre-commit-config.yaml	(rejected hunks)
          additional_dependencies:
 -          - rust-just==1.45.0
 +          - rust-just==1.46.0
- 
+
    # * Top level
    - repo: https://github.com/pre-commit/pre-commit-hooks
 @@ -63,7 +65,7 @@ repos:
@@ -34,7 +34,7 @@ diff a/.pre-commit-config.yaml b/.pre-commit-config.yaml	(rejected hunks)
          additional_dependencies:
 -          - ruff==0.14.9
 +          - ruff==0.14.14
- 
+
    # * Spelling
    # ** typos
    # Revert to crate-ci/typos if https://github.com/crate-ci/typos/issues/390 is fixed.
@@ -57,13 +57,13 @@ diff a/.pre-commit-config.yaml b/.pre-commit-config.yaml	(rejected hunks)
 -        exclude_types: [jupyter]
 -        exclude: ^uv[.]lock$|^requirements
 -        stages: [manual]
- 
+
    # * Dependencies
    # ** pyproject2conda
 @@ -187,32 +178,75 @@ repos:
          files: ^README\.md$
          stages: [manual]
- 
+
 +  # * Actions
 +  - repo: https://github.com/python-jsonschema/check-jsonschema
 +    rev: 0.36.0
@@ -147,7 +147,7 @@ diff a/.pre-commit-config.yaml b/.pre-commit-config.yaml	(rejected hunks)
 +          - -cbasedpyright
 +          - -cty
 +        stages: [manual]
- 
+
    # * Notebook specific --------------------------------------------------------
    # * Strip out metadata from notebooks
    - repo: https://github.com/kynan/nbstripout
@@ -168,7 +168,7 @@ diff a/.pre-commit-config.yaml b/.pre-commit-config.yaml	(rejected hunks)
 @@ -241,29 +275,6 @@ repos:
          # this can lead to errors, so use with care
          # args: [typos, --write-changes, --nbqa-shell, --nbqa-md]
- 
+
 -      # ** codespell
 -      - id: nbqa
 -        name: nbqa-codespell
