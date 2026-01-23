@@ -3,8 +3,11 @@ description:
   Composite action to do 'actions/setup-python' and 'hynek/setup-cached-uv'
 inputs:
   # actions/setup-python
-  python-version: "Version to pass to actions/setup-python"
-  python-version-file: "File to pass to actions/setup-python"
+
+  python-version:
+    description: "Version to pass to actions/setup-python"
+  python-version-file:
+    description: "File to pass to actions/setup-python"
   # hynek/setup-cached-uv
   cache-dependency-path:
     description: "Passed to hynek/setup-cached-uv"
