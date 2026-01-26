@@ -69,7 +69,6 @@ test-extras = [
 typecheck = [
     { include-group = "pylint" },
     { include-group = "pytest" },
-    { include-group = "typecheck-runner" },
 ]
 
 # * uv -------------------------------------------------------------------------

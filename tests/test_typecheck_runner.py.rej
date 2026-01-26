@@ -1,7 +1,0 @@
-diff a/tests/test_typecheck_runner.py b/tests/test_typecheck_runner.py	(rejected hunks)
-@@ -20,4 +20,4 @@ def response() -> tuple[int, int]:
-
- def test_example_function(response: tuple[int, int]) -> None:
-     expected = 3
--    assert example_function(*response) == expected  # ty: ignore[missing-argument]
-+    assert example_function(*response) == expected
