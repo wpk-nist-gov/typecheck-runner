@@ -5,17 +5,17 @@ diff a/noxfile.py b/noxfile.py	(rejected hunks)
  )
 +PYTHON_TEST_VERSIONS = PYTHON_ALL_VERSIONS
  PYTHON_DEFAULT_VERSION = Path(".python-version").read_text(encoding="utf-8").strip()
- 
+
  UVX_LOCK_CONSTRAINTS = "requirements/lock/uvx-tools.txt"
 @@ -154,7 +155,9 @@ class SessionParams(DataclassParser):
      no_cov: bool = False
- 
+
      # coverage
 -    coverage: list[Literal["erase", "combine", "report", "html", "open"]] | None = None
 +    coverage: (
 +        list[Literal["erase", "combine", "report", "html", "open", "markdown"]] | None
 +    ) = None
- 
+
      # docs
      docs: (
 @@ -468,7 +471,7 @@ def pre_commit_run(
@@ -26,7 +26,7 @@ diff a/noxfile.py b/noxfile.py	(rejected hunks)
 +    for py in PYTHON_TEST_VERSIONS:
          session.notify(f"test-{py}")
      session.notify("coverage")
- 
+
 @@ -536,7 +539,9 @@ def _test(
      if not test_no_pytest:
          opts = combine_list_str(test_options or [])
@@ -35,22 +35,22 @@ diff a/noxfile.py b/noxfile.py	(rejected hunks)
 +            session.env["COVERAGE_FILE"] = str(
 +                Path(session.create_tmp()) / f".coverage-{sys.platform}"
 +            )
- 
+
              if not any(o.startswith("--cov") for o in opts):
                  opts.append(f"--cov={IMPORT_NAME}")
 @@ -570,7 +575,7 @@ def test(
      )
- 
- 
+
+
 -nox.session(**ALL_KWS)(test)
 +nox.session(python=PYTHON_TEST_VERSIONS)(test)
  nox.session(name="test-conda", **CONDA_ALL_KWS)(test)
- 
- 
+
+
 @@ -637,6 +642,15 @@ def coverage(
          elif c == "open":
              open_webpage(path="htmlcov/index.html")
- 
+
 +        elif c == "markdown":
 +            with Path("coverage.md").open("w", encoding="utf-8") as f:
 +                uvx_run(
@@ -65,13 +65,13 @@ diff a/noxfile.py b/noxfile.py	(rejected hunks)
                  session,
 @@ -681,7 +695,7 @@ def testdist(
      )
- 
- 
+
+
 -nox.session(name="testdist-pypi", **ALL_KWS)(testdist)
 +nox.session(name="testdist-pypi", python=PYTHON_TEST_VERSIONS)(testdist)
  nox.session(name="testdist-conda", **CONDA_ALL_KWS)(testdist)
- 
- 
+
+
 @@ -830,19 +844,14 @@ def typecheck(  # noqa: C901
          if c.endswith("-notebook"):
              session.run("just", c, external=True)
