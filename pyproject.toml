@@ -210,7 +210,6 @@ exclude = [
     "**/.mypy_cache",
     "**/.numba_cache",
 ]
-pythonVersion = "3.11"
 typeCheckingMode = "strict"
 # typeCheckingMode = "standard"
 # strict = [
