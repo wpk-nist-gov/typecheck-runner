@@ -6,5 +6,5 @@ diff a/pyproject.toml b/pyproject.toml	(rejected hunks)
 -    "uv-build>=0.8.22,<0.9.0",
 +    "uv-build>=0.8.22,<0.10.0",
  ]
- 
+
  [project]
