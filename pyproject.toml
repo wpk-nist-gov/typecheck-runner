@@ -36,8 +36,10 @@ classifiers = [
 dependencies = [
     "packaging>=25.0",
 ]
-urls.Homepage = "https://github.com/wpk-nist-gov/typecheck-runner"
-scripts.typecheck-runner = "typecheck_runner.typecheck_runner:main"
+[project.scripts]
+typecheck-runner = "typecheck_runner.typecheck_runner:main"
+[project.urls]
+Homepage = "https://github.com/wpk-nist-gov/typecheck-runner"
 
 [dependency-groups]
 dev = [
@@ -79,9 +81,8 @@ default-groups = [ "dev" ]
 fork-strategy = "requires-python"
 required-version = ">=0.7.15"
 
-[tool.uv.pip]
-annotation-style = "line"
-generate-hashes = true
+[tool.uv.build-backend]
+source-include = [ "tests/**" ]
 
 [tool.uv.dependency-groups]
 dev.requires-python = ">=3.14"
@@ -92,25 +93,20 @@ mypy.requires-python = ">=3.14"
 notebook.requires-python = ">=3.14"
 nox.requires-python = ">=3.14"
 
-[tool.uv.build-backend]
-source-include = [ "tests/**" ]
-
-[[tool.uv.index]]
-name = "testpypi"
-url = "https://test.pypi.org/simple/"
-publish-url = "https://test.pypi.org/legacy/"
-explicit = true
+[tool.uv.pip]
+annotation-style = "line"
+generate-hashes = true
 
 # * Checks ---------------------------------------------------------------------
 
 [tool.repo-review]
 ignore = [
+    "NOX103", # I prefer using "nox.options.sessions"
     "PC111",  # use doccmd instead of blacken-docs
     "PC140",  # do this externally
     "PC160",  # using typos
     "PC170",  # pygrep
     "PY004",  # no docs for simple tool
-    "NOX103", # I prefer using "nox.options.sessions"
 ]
 
 [tool.check-wheel-contents]
@@ -118,24 +114,33 @@ toplevel = [ "typecheck_runner" ]
 src_dir = [ "src" ]
 
 [tool.pyproject-fmt]
+indent = 4
 # max_supported_python = "3.13"
+keep_full_version = true
+expand_tables = [
+    "project.entry-points",
+    "project.optional-dependencies",
+    "project.scripts",
+    "project.urls",
+]
+collapse_tables = [  ]
 
 # * Testing --------------------------------------------------------------------
 
 [tool.pytest.ini_options]
 addopts = [
-    "-ra",
+    "--cov-config=pyproject.toml",
+    "--doctest-glob=*.md",
+    "--doctest-modules",
+    "--pyargs",
     "--strict-config",
     "--strict-markers",
-    "--doctest-modules",
-    "--doctest-glob=*.md",
-    "--pyargs",
-    "--cov-config=pyproject.toml",
+    "-ra",
 ]
 testpaths = [
     "README.md",
-    "typecheck_runner",
     "tests",
+    "typecheck_runner",
 ]
 minversion = "8"
 log_cli_level = "INFO"
@@ -143,29 +148,30 @@ log_level = "INFO"
 strict_xfail = "true"
 filterwarnings = [ "error" ]
 
-[tool.coverage.run]
-branch = true
+[tool.coverage.paths]
+source = [
+    "src/",
+    # required for installed package doctests
+    ".nox/**/site-packages/",
+]
 
 [tool.coverage.report]
 show_missing = true
 exclude_also = [
-    "if TYPE_CHECKING:",
     "@overload",
+    "if TYPE_CHECKING:",
     "if __name__",
 ]
 omit = [
-    "*/vendored/*",
     "*/_typing.py",
+    "*/vendored/*",
 ]
 include = [
     "src/*",
 ]
 
-[tool.coverage.paths]
-source = [
-    "src/",
-    ".nox/**/site-packages/",
-]
+[tool.coverage.run]
+branch = true
 
 # * typecheck ---------------------------------------------------------------------
 
@@ -180,10 +186,10 @@ warn_unused_configs = true
 warn_unreachable = true
 exclude = [
     ".eggs",
-    ".tox",
     ".nox",
-    ".venv",
     ".numba_cache",
+    ".tox",
+    ".venv",
     "docs",
 ]
 check_untyped_defs = true
@@ -203,12 +209,12 @@ include = [
     "tests",
 ]
 exclude = [
-    "**/__pycache__",
-    ".tox/**",
-    ".nox/**",
-    ".venv/**",
     "**/.mypy_cache",
     "**/.numba_cache",
+    "**/__pycache__",
+    ".nox/**",
+    ".tox/**",
+    ".venv/**",
 ]
 typeCheckingMode = "strict"
 # typeCheckingMode = "standard"
@@ -271,6 +277,16 @@ deps = "pip"
 [tool.pyproject2conda.envs.dev]
 groups = "dev"
 
+[tool.pyproject2conda.envs.pre-commit-additional-dependencies]
+reqs = [
+    "rust-just",
+]
+groups = [
+    "cog",
+]
+skip-package = true
+style = "requirements"
+
 [tool.pyproject2conda.envs.test]
 groups = "test"
 python = "all"
@@ -287,8 +303,8 @@ reqs = [
     "cruft",
     "grayskull>=2.5.3",
     "nbqa>=1.8.4",
-    "pre-commit>=4.0.0",
     "pre-commit-uv",
+    "pre-commit>=4.0.0",
     "prek",
     "pyrefly>=0.37.0",
     "pyright>=1.1.396",
@@ -297,20 +313,10 @@ reqs = [
     "ty",
 ]
 groups = [
+    "basedpyright",
     "cog",
     "mypy",
-    "basedpyright",
     "nox",
-]
-skip-package = true
-style = "requirements"
-
-[tool.pyproject2conda.envs.pre-commit-additional-dependencies]
-reqs = [
-    "rust-just",
-]
-groups = [
-    "cog",
 ]
 skip-package = true
 style = "requirements"

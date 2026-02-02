@@ -215,6 +215,7 @@ jobs:
       - lint
       - typecheck
       - test
+      - coverage
       - pinact
     runs-on: ubuntu-latest
     steps:
