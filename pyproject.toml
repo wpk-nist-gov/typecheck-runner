@@ -257,6 +257,10 @@ reportUnusedVariable = false              # dupe of F841
 root = "tests"
 reportUnusedCallResult = false
 
+[tool.ty.analysis]
+# Disable support for `type: ignore` comments
+respect-type-ignore-comments = false
+
 [tool.ty.src]
 include = [ "src", "tests" ]
 
