@@ -5,16 +5,15 @@ diff a/pyproject.toml b/pyproject.toml	(rejected hunks)
      "PC170",  # pygrep
 -    "PC901",  # ci message
  ]
- 
+
  [tool.check-wheel-contents]
 @@ -291,6 +294,10 @@ root = "tests"
  # reportMissingImports = false
  reportUnusedCallResult = false
- 
+
 +[tool.ty.analysis]
 +# Disable support for `type: ignore` comments
 +respect-type-ignore-comments = false
 +
  [tool.ty.src]
  include = [ "src", "tests" ]
- 
