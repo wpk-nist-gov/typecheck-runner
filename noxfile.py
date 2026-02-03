@@ -826,10 +826,10 @@ def typecheck(  # noqa: C901
 
     cmd = opts.typecheck or []
     if not opts.typecheck_run and not cmd:
-        cmd = ["mypy", "basedpyright"]
+        cmd = ["mypy", "basedpyright", "pyrefly", "ty", "pylint"]
 
     if "all" in cmd:
-        cmd = ["mypy", "basedpyright", "pylint"]
+        cmd = ["mypy", "basedpyright", "pyrefly", "ty", "pylint"]
 
     # set the cache directory for mypy
     session.env["MYPY_CACHE_DIR"] = str(Path(session.create_tmp()) / ".mypy_cache")

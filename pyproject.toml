@@ -125,6 +125,9 @@ expand_tables = [
 ]
 collapse_tables = [  ]
 
+[tool.typos.default.extend-identifiers]
+CPY = "CPY"
+
 # * Testing --------------------------------------------------------------------
 
 [tool.pytest.ini_options]
@@ -202,6 +205,7 @@ enable_error_code = [
 
 [tool.pyrefly]
 project-includes = [ "src", "tests" ]
+enabled-ignores = [ "pyrefly" ]
 
 [tool.pyright]
 include = [
@@ -252,6 +256,10 @@ reportUnusedVariable = false              # dupe of F841
 [[tool.pyright.executionEnvironments]]
 root = "tests"
 reportUnusedCallResult = false
+
+[tool.ty.analysis]
+# Disable support for `type: ignore` comments
+respect-type-ignore-comments = false
 
 [tool.ty.src]
 include = [ "src", "tests" ]
@@ -310,7 +318,7 @@ reqs = [
     "pyright>=1.1.396",
     "scriv",
     "twine>=5.0.0",
-    "ty",
+    "ty>=0.0.14",
 ]
 groups = [
     "basedpyright",
