@@ -1,0 +1,10 @@
+diff a/.pre-commit-config.yaml b/.pre-commit-config.yaml	(rejected hunks)
+@@ -272,7 +272,7 @@ repos:
+         name: nbqa-typos
+         alias: typos
+         additional_dependencies: &typos-deps
+-          - typos==1.42.3
++          - typos==1.43.0
+         args: [typos, --nbqa-shell]
+         # this can lead to errors, so use with care
+         # args: [typos, --write-changes, --nbqa-shell]

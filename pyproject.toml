@@ -125,6 +125,9 @@ expand_tables = [
 ]
 collapse_tables = [  ]
 
+[tool.typos.default.extend-identifiers]
+CPY = "CPY"
+
 # * Testing --------------------------------------------------------------------
 
 [tool.pytest.ini_options]
@@ -202,6 +205,7 @@ enable_error_code = [
 
 [tool.pyrefly]
 project-includes = [ "src", "tests" ]
+enabled-ignores = [ "pyrefly" ]
 
 [tool.pyright]
 include = [
@@ -310,7 +314,7 @@ reqs = [
     "pyright>=1.1.396",
     "scriv",
     "twine>=5.0.0",
-    "ty",
+    "ty>=0.0.14",
 ]
 groups = [
     "basedpyright",
