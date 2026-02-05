@@ -261,6 +261,6 @@ repos:
           - .
           - basedpyright==1.37.4
           - packaging>=25.0
-          - pyrefly==0.51.0
+          - pyrefly==0.51.1
           - pytest
-          - ty==0.0.14
+          - ty==0.0.15
