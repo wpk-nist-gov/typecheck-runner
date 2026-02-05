@@ -52,11 +52,7 @@ repos:
         exclude: ^uv[.]lock
       - id: check-case-conflict
       - id: check-merge-conflict
-<<<<<<< before updating
-=======
         args: [--assume-in-merge]
-      - id: check-symlinks
->>>>>>> after updating
       - id: check-yaml
       - id: check-json
       - id: check-toml
