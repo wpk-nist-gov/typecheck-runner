@@ -42,7 +42,7 @@ jobs:
         run: |
           CHANGES=0
           if [ -f .copier-answers.yml ]; then
-            uvx -crequirements/lock/uvx-tools.txt copier update "$COPIER_OPTIONS"
+            uvx -crequirements/lock/uvx-tools.txt copier update ${{ env.COPIER_OPTIONS }}
             if ! git diff --quiet -- .copier-answers.yml; then
               CHANGES=1
             fi
