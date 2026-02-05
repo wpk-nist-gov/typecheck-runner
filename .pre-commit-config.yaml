@@ -8,7 +8,6 @@ ci:
   autoupdate_schedule: "weekly"
   skip:
     - cog-readme
-    - typecheck-runner
     - uv-lock
     - pip-compile
 
