@@ -1,7 +1,7 @@
 name: Update repository with copier
 on:
-  # schedule:
-  #   - cron: "0 2 * * 1" # Every Monday at 2am
+  schedule:
+    - cron: "0 2 * * 1" # Every Monday at 2am
   workflow_dispatch:
 
 permissions:
@@ -9,7 +9,7 @@ permissions:
   pull-requests: write
 
 env:
-  COPIER_OPTIONS: "--trust -a -r main"
+  COPIER_OPTIONS: "--trust -A -r main"
 
 jobs:
   update:
@@ -32,17 +32,22 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
+          fetch-depth: 0
       - uses: ./.github/actions/setup-cached-uv-and-python
         with:
           python-version-file: ".python-version"
           cache-dependency-path: requirements/lock/uvx-tools.txt
+      - name: Install copier
+        run:
+          uv tool install -crequirements/lock/uvx-tools.txt --with
+          copier-template-extensions copier
       - name: Copier update
         continue-on-error: false
         id: check
         run: |
           CHANGES=0
           if [ -f .copier-answers.yml ]; then
-            uvx -crequirements/lock/uvx-tools.txt copier update "$COPIER_OPTIONS"
+            copier update ${{ env.COPIER_OPTIONS }}
             if ! git diff --quiet -- .copier-answers.yml; then
               CHANGES=1
             fi
@@ -57,6 +62,8 @@ jobs:
         run: |
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
+
+          git restore --staged .
 
       - name: Create pull request
         if: steps.check.outputs.has_changes == '1'

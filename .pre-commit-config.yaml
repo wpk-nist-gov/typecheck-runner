@@ -8,7 +8,6 @@ ci:
   autoupdate_schedule: "weekly"
   skip:
     - cog-readme
-    - typecheck-runner
     - uv-lock
     - pip-compile
 
@@ -34,10 +33,15 @@ repos:
       - id: justfile-format
         additional_dependencies:
           - rust-just==1.46.0
-      - id: check-file-extension
-        args:
-          # exclude `.rej` files from cruft
-          - "--ext=.rej"
+
+  # * Forbidden files
+  - repo: local
+    hooks:
+      - id: forbidden-files
+        name: forbidden files
+        entry: Found forbidden file.
+        language: fail
+        files: \.(rej|bak)$
 
   # * Top level
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -47,8 +51,9 @@ repos:
         exclude: ^uv[.]lock
       - id: check-case-conflict
       - id: check-merge-conflict
+        args: [--assume-in-merge]
       - id: check-yaml
-      - id: check-json
+      # - id: check-json
       - id: check-toml
       - id: trailing-whitespace
       - id: end-of-file-fixer
@@ -150,7 +155,7 @@ repos:
         alias: requirements
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.9.29
+    rev: 0.9.30
     hooks:
       - id: uv-lock
         alias: requirements
@@ -167,14 +172,6 @@ repos:
     hooks:
       - id: commitizen
         stages: [commit-msg]
-
-  # * Cruft
-  - repo: https://github.com/cruft/cruft.git
-    rev: 2.16.0
-    hooks:
-      - id: cruft
-        args: [--checkout, main]
-        stages: [manual]
 
   # * Cog
   - repo: local
@@ -224,43 +221,3 @@ repos:
       # Run the linter.
       - id: zizmor
         alias: actions
-
-  # * typecheck
-  # ** sync dependencies
-  - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
-    rev: v0.3.0
-    hooks:
-      - id: fill-pre-commit-hook-deps
-        alias: typecheck
-        stages: [manual]
-        args:
-          - "--hook=typecheck-runner"
-          - "--group=typecheck"
-          - "--exclude=pylint"
-          - "--requirements=requirements/lock/uvx-tools.txt"
-          - "--requirements-include=basedpyright"
-          - "--requirements-include=ty"
-          - "--requirements-include=pyrefly"
-          - "."
-  - repo: local
-    hooks:
-      - id: typecheck-runner
-        name: typecheck-runner
-        alias: typecheck
-        entry: python -m typecheck_runner --no-uvx -v
-        language: python
-        args:
-          - -cbasedpyright
-          - -cty
-          - -cpyrefly
-        require_serial: true
-        types_or: [python, pyi]
-        files: ^(src/|tests/)
-        stages: [manual]
-        additional_dependencies:
-          - .
-          - basedpyright==1.37.4
-          - packaging>=25.0
-          - pyrefly==0.51.0
-          - pytest
-          - ty==0.0.14
