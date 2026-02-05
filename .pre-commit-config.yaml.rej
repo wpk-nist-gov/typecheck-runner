@@ -1,0 +1,9 @@
+diff a/.pre-commit-config.yaml b/.pre-commit-config.yaml	(rejected hunks)
+@@ -47,6 +52,7 @@ repos:
+         exclude: ^uv[.]lock
+       - id: check-case-conflict
+       - id: check-merge-conflict
++        args: [--assume-in-merge]
+       - id: check-symlinks
+       - id: check-yaml
+       - id: check-json
