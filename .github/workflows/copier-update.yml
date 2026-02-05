@@ -9,7 +9,7 @@ permissions:
   pull-requests: write
 
 env:
-  COPIER_OPTIONS: "--trust -A -r main -o rej"
+  COPIER_OPTIONS: "--trust -A -r main"
 
 jobs:
   update:
