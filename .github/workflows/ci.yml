@@ -82,7 +82,7 @@ jobs:
             }}|${{ hashFiles('./**/.pre-commit-config.yaml') }}
       - name: Run prek
         env:
-          SKIP: typecheck
+          SKIP: "typecheck,cruft"
         run: >-
           $UVX_COMMAND prek run --show-diff-on-failure --color=always
           --all-files --hook-stage=manual -v

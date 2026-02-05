@@ -255,8 +255,8 @@ repos:
         stages: [manual]
         additional_dependencies:
           - .
-          - basedpyright==1.37.2
+          - basedpyright==1.37.4
           - packaging>=25.0
-          - pyrefly==0.49.0
+          - pyrefly==0.51.0
           - pytest
           - ty==0.0.14
