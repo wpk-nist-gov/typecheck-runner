@@ -1,7 +1,7 @@
 name: Update repository with copier
 on:
-  # schedule:
-  #   - cron: "0 2 * * 1" # Every Monday at 2am
+  schedule:
+    - cron: "0 2 * * 1" # Every Monday at 2am
   workflow_dispatch:
 
 permissions:
