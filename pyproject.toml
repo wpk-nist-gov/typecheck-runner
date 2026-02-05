@@ -310,7 +310,6 @@ reqs = [
     "conda-lock>=2.5.5",
     "copier",
     "copier-template-extensions>=0.3.1",
-    "cruft",
     "grayskull>=2.5.3",
     "nbqa>=1.8.4",
     "pre-commit-uv",

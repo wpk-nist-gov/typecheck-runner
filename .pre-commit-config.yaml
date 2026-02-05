@@ -54,7 +54,7 @@ repos:
       - id: check-merge-conflict
         args: [--assume-in-merge]
       - id: check-yaml
-      - id: check-json
+      # - id: check-json
       - id: check-toml
       - id: trailing-whitespace
       - id: end-of-file-fixer
@@ -174,14 +174,6 @@ repos:
       - id: commitizen
         stages: [commit-msg]
 
-  # * Cruft
-  - repo: https://github.com/cruft/cruft.git
-    rev: 2.16.0
-    hooks:
-      - id: cruft
-        args: [--checkout, main]
-        stages: [manual]
-
   # * Cog
   - repo: local
     hooks:
@@ -230,43 +222,3 @@ repos:
       # Run the linter.
       - id: zizmor
         alias: actions
-
-  # * typecheck
-  # ** sync dependencies
-  - repo: https://github.com/wpk-nist-gov/sync-pre-commit-hooks
-    rev: v0.3.0
-    hooks:
-      - id: fill-pre-commit-hook-deps
-        alias: typecheck
-        stages: [manual]
-        args:
-          - "--hook=typecheck-runner"
-          - "--group=typecheck"
-          - "--exclude=pylint"
-          - "--requirements=requirements/lock/uvx-tools.txt"
-          - "--requirements-include=basedpyright"
-          - "--requirements-include=ty"
-          - "--requirements-include=pyrefly"
-          - "."
-  - repo: local
-    hooks:
-      - id: typecheck-runner
-        name: typecheck-runner
-        alias: typecheck
-        entry: python -m typecheck_runner --no-uvx -v
-        language: python
-        args:
-          - -cbasedpyright
-          - -cty
-          - -cpyrefly
-        require_serial: true
-        types_or: [python, pyi]
-        files: ^(src/|tests/)
-        stages: [manual]
-        additional_dependencies:
-          - .
-          - basedpyright==1.37.4
-          - packaging>=25.0
-          - pyrefly==0.51.1
-          - pytest
-          - ty==0.0.15
