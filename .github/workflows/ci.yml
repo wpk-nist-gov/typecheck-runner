@@ -90,7 +90,7 @@ jobs:
             raise SystemExit(1)
 
           print("prek_version:", version)
-          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+          with open(os.environ["GITHUB_ENV"], "a") as f:
             f.write(f"prek_version={version}\n")
 
       - name: Print version
