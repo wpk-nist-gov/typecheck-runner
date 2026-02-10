@@ -38,6 +38,7 @@ dependencies = [
 ]
 [project.scripts]
 typecheck-runner = "typecheck_runner.typecheck_runner:main"
+
 [project.urls]
 Homepage = "https://github.com/wpk-nist-gov/typecheck-runner"
 
@@ -55,7 +56,7 @@ test = [
     "tomli; python_version<'3.11'",
     { include-group = "pytest" },
 ]
-# other packages/tools
+# other envs
 basedpyright = [ "basedpyright>=1.31.3" ]
 cog = [ "cogapp" ]
 ipython = [ "ipython" ]
@@ -64,7 +65,6 @@ notebook = [ "ipykernel" ]
 nox = [ "nox>=2025.5.1" ]
 pylint = [ "pylint" ]
 pytest = [ "pytest" ]
-# other environments
 test-extras = [
     { include-group = "test" },
 ]
@@ -76,13 +76,13 @@ typecheck = [
 # * uv -------------------------------------------------------------------------
 
 [tool.uv]
-managed = true
+required-version = ">=0.7.15"
 default-groups = [ "dev" ]
 fork-strategy = "requires-python"
-required-version = ">=0.7.15"
-
-[tool.uv.build-backend]
-source-include = [ "tests/**" ]
+managed = true
+build-backend.source-include = [ "tests/**" ]
+pip.annotation-style = "line"
+pip.generate-hashes = true
 
 [tool.uv.dependency-groups]
 dev.requires-python = ">=3.14"
@@ -92,10 +92,6 @@ ipython.requires-python = ">=3.14"
 mypy.requires-python = ">=3.14"
 notebook.requires-python = ">=3.14"
 nox.requires-python = ">=3.14"
-
-[tool.uv.pip]
-annotation-style = "line"
-generate-hashes = true
 
 # * Checks ---------------------------------------------------------------------
 
@@ -109,10 +105,6 @@ ignore = [
     "PY004",  # no docs for simple tool
 ]
 
-[tool.check-wheel-contents]
-toplevel = [ "typecheck_runner" ]
-src_dir = [ "src" ]
-
 [tool.pyproject-fmt]
 indent = 4
 # max_supported_python = "3.13"
@@ -122,8 +114,12 @@ expand_tables = [
     "project.optional-dependencies",
     "project.scripts",
     "project.urls",
+    "tool.pyproject2conda",
+    "tool.pyright.executionEnvironments",
+    "tool.pytest",
+    "tool.typos",
+    "tool.uv.dependency-groups",
 ]
-collapse_tables = [  ]
 
 [tool.typos.default.extend-identifiers]
 CPY = "CPY"
@@ -151,30 +147,26 @@ log_level = "INFO"
 strict_xfail = "true"
 filterwarnings = [ "error" ]
 
-[tool.coverage.paths]
-source = [
+[tool.coverage]
+run.branch = true
+paths.source = [
     "src/",
     # required for installed package doctests
     ".nox/**/site-packages/",
 ]
-
-[tool.coverage.report]
-show_missing = true
-exclude_also = [
+report.exclude_also = [
     "@overload",
     "if TYPE_CHECKING:",
     "if __name__",
 ]
-omit = [
+report.include = [
+    "src/*",
+]
+report.omit = [
     "*/_typing.py",
     "*/vendored/*",
 ]
-include = [
-    "src/*",
-]
-
-[tool.coverage.run]
-branch = true
+report.show_missing = true
 
 # * typecheck ---------------------------------------------------------------------
 
@@ -233,36 +225,32 @@ reportPropertyTypeMismatch = true
 reportUntypedClassDecorator = true
 reportUntypedFunctionDecorator = true
 # Extra flags
-enableTypeIgnoreComments = false
-reportUnnecessaryTypeIgnoreComment = true
-reportUnreachable = "warning"
-
 deprecateTypingAliases = true
 enableReachabilityAnalysis = false
+enableTypeIgnoreComments = false
 reportCallInDefaultInitializer = true
 reportImplicitOverride = true
 reportImportCycles = true
 # reportMissingSuperCall = true
 reportUninitializedInstanceVariable = true
+reportUnnecessaryTypeIgnoreComment = true
+reportUnreachable = "warning"
 reportUnusedCallResult = true
-
 # type-checkers should type-check; linters should lint
 reportImplicitStringConcatenation = false
-reportPrivateUsage = false                # dupe of PLC2701
-reportPrivateImportUsage = false          # dupe of PLC2701
-reportUnusedImport = false                # dupe of F401
-reportUnusedVariable = false              # dupe of F841
+reportPrivateUsage = false
+reportPrivateImportUsage = false
+reportUnusedImport = false
+reportUnusedVariable = false
 
 [[tool.pyright.executionEnvironments]]
 root = "tests"
 reportUnusedCallResult = false
 
-[tool.ty.analysis]
+[tool.ty]
 # Disable support for `type: ignore` comments
-respect-type-ignore-comments = false
-
-[tool.ty.src]
-include = [ "src", "tests" ]
+analysis.respect-type-ignore-comments = false
+src.include = [ "src", "tests" ]
 
 [tool.pytype]
 inputs = [
