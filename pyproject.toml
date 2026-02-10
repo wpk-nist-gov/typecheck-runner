@@ -36,6 +36,7 @@ classifiers = [
 dependencies = [
     "packaging>=25.0",
 ]
+
 [project.scripts]
 typecheck-runner = "typecheck_runner.typecheck_runner:main"
 
@@ -156,8 +157,8 @@ paths.source = [
 ]
 report.exclude_also = [
     "@overload",
-    "if TYPE_CHECKING:",
     "if __name__",
+    "if TYPE_CHECKING:",
 ]
 report.include = [
     "src/*",
