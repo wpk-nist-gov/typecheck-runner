@@ -93,11 +93,6 @@ jobs:
           with open(os.environ["GITHUB_ENV"], "a") as f:
             f.write(f"prek_version={version}\n")
 
-      - name: Print version
-        env:
-          prek_version: ${{ env.prek_version }}
-        run: echo $prek_version
-
       - name: Setup prek
         uses: j178/prek-action@0bb87d7f00b0c99306c8bcb8b8beba1eb581c037 # v1.1.0
         with:
