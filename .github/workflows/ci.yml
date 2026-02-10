@@ -71,27 +71,11 @@ jobs:
           cache-dependency-path: uv.lock
 
       - name: Get prek version
-        shell: python
+        shell: bash
         run: |
-          import os
-          import re
-          from pathlib import Path
-
-          pattern = re.compile(r"prek==(.*)\s+\\")
-          version = None
-          with Path(os.environ["UVX_CONSTRAINT"]).open() as f:
-            for line in f:
-              match = pattern.match(line)
-              if match:
-                version = match.group(1)
-                break
-
-          if version is None:
-            raise SystemExit(1)
-
-          print("prek_version:", version)
-          with open(os.environ["GITHUB_ENV"], "a") as f:
-            f.write(f"prek_version={version}\n")
+          prek_version=$(grep prek "$UVX_CONSTRAINT" | cut -d " " -f1 | sed "s/prek==//")
+          echo "prek_version: ${prek_version}"
+          echo "prek_version=${prek_version}" >> "$GITHUB_ENV"
 
       - name: Setup prek
         uses: j178/prek-action@0bb87d7f00b0c99306c8bcb8b8beba1eb581c037 # v1.1.0
