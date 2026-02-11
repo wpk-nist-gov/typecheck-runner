@@ -138,16 +138,17 @@ addopts = [
     "--strict-markers",
     "-ra",
 ]
-filterwarnings = [ "error" ]
-log_cli_level = "INFO"
-log_level = "INFO"
-minversion = "8"
-strict_xfail = "true"
 testpaths = [
     "README.md",
     "tests",
     "typecheck_runner",
 ]
+# other options
+filterwarnings = [ "error" ]
+log_cli_level = "INFO"
+log_level = "INFO"
+minversion = "8"
+strict_xfail = "true"
 
 [tool.coverage]
 run.branch = true
