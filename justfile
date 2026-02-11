@@ -156,7 +156,7 @@ requirements *options: (_requirements "--sync-or-lock" options)
 
 # * Typecheck ---------------------------------------------------------------------
 
-TYPECHECK_UVRUN_OPTS := "--group=typecheck --no-dev"
+TYPECHECK_UVRUN_OPTS := "--group=type --no-dev"
 
 _typecheck *check_options:
     {{ UVRUN }} {{ TYPECHECK_UVRUN_OPTS }} -m typecheck_runner -v {{ UVX_OPTS }} {{ check_options }}
