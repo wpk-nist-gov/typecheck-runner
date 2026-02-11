@@ -49,12 +49,16 @@ dev = [
     { include-group = "notebook" },
     { include-group = "nox" },
     { include-group = "test" },
-    { include-group = "typecheck" },
+    { include-group = "type" },
 ]
 test = [
     "pytest-cov",
     "pytest-sugar",
     "tomli; python_version<'3.11'",
+    { include-group = "pytest" },
+]
+type = [
+    { include-group = "pylint" },
     { include-group = "pytest" },
 ]
 # other envs
@@ -68,10 +72,6 @@ pylint = [ "pylint" ]
 pytest = [ "pytest" ]
 test-extras = [
     { include-group = "test" },
-]
-typecheck = [
-    { include-group = "pylint" },
-    { include-group = "pytest" },
 ]
 
 # * uv -------------------------------------------------------------------------
@@ -107,20 +107,21 @@ ignore = [
 ]
 
 [tool.pyproject-fmt]
-indent = 4
-# max_supported_python = "3.13"
-keep_full_version = true
 expand_tables = [
     "project.entry-points",
     "project.optional-dependencies",
     "project.scripts",
     "project.urls",
+    "tool.mypy.overrides",
     "tool.pyproject2conda",
     "tool.pyright.executionEnvironments",
     "tool.pytest",
     "tool.typos",
     "tool.uv.dependency-groups",
 ]
+# max_supported_python = "3.13"
+indent = 4
+keep_full_version = true
 
 [tool.typos.default.extend-identifiers]
 CPY = "CPY"
@@ -137,16 +138,16 @@ addopts = [
     "--strict-markers",
     "-ra",
 ]
+filterwarnings = [ "error" ]
+log_cli_level = "INFO"
+log_level = "INFO"
+minversion = "8"
+strict_xfail = "true"
 testpaths = [
     "README.md",
     "tests",
     "typecheck_runner",
 ]
-minversion = "8"
-log_cli_level = "INFO"
-log_level = "INFO"
-strict_xfail = "true"
-filterwarnings = [ "error" ]
 
 [tool.coverage]
 run.branch = true
@@ -172,14 +173,6 @@ report.show_missing = true
 # * typecheck ---------------------------------------------------------------------
 
 [tool.mypy]
-files = [
-    "src",
-    "tests",
-]
-warn_unused_ignores = true
-warn_return_any = true
-warn_unused_configs = true
-warn_unreachable = true
 exclude = [
     ".eggs",
     ".nox",
@@ -188,23 +181,28 @@ exclude = [
     ".venv",
     "docs",
 ]
-check_untyped_defs = true
+files = [
+    "src",
+    "tests",
+]
 strict = true
+# options
+check_untyped_defs = true
 enable_error_code = [
     "ignore-without-code",
     "redundant-expr",
     "truthy-bool",
 ]
+warn_return_any = true
+warn_unreachable = true
+warn_unused_configs = true
+warn_unused_ignores = true
 
 [tool.pyrefly]
-project-includes = [ "src", "tests" ]
 enabled-ignores = [ "pyrefly" ]
+project-includes = [ "src", "tests" ]
 
 [tool.pyright]
-include = [
-    "src",
-    "tests",
-]
 exclude = [
     "**/.mypy_cache",
     "**/.numba_cache",
@@ -212,6 +210,10 @@ exclude = [
     ".nox/**",
     ".tox/**",
     ".venv/**",
+]
+include = [
+    "src",
+    "tests",
 ]
 typeCheckingMode = "strict"
 # typeCheckingMode = "standard"
@@ -239,14 +241,14 @@ reportUnreachable = "warning"
 reportUnusedCallResult = true
 # type-checkers should type-check; linters should lint
 reportImplicitStringConcatenation = false
-reportPrivateUsage = false
 reportPrivateImportUsage = false
+reportPrivateUsage = false
 reportUnusedImport = false
 reportUnusedVariable = false
 
 [[tool.pyright.executionEnvironments]]
-root = "tests"
 reportUnusedCallResult = false
+root = "tests"
 
 [tool.ty]
 # Disable support for `type: ignore` comments

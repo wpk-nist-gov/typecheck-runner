@@ -1249,7 +1249,7 @@ test-extras = [
     { name = "pytest-sugar" },
     { name = "tomli", marker = "python_full_version < '3.11'" },
 ]
-typecheck = [
+type = [
     { name = "pylint" },
     { name = "pytest" },
 ]
@@ -1292,7 +1292,7 @@ test-extras = [
     { name = "pytest-sugar" },
     { name = "tomli", marker = "python_full_version < '3.11'" },
 ]
-typecheck = [
+type = [
     { name = "pylint" },
     { name = "pytest" },
 ]
