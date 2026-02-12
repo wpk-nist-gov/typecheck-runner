@@ -61,7 +61,7 @@ type = [
     { include-group = "pylint" },
     { include-group = "pytest" },
 ]
-# other envs
+# other groups
 basedpyright = [ "basedpyright>=1.31.3" ]
 cog = [ "cogapp" ]
 ipython = [ "ipython" ]
@@ -107,6 +107,7 @@ ignore = [
 ]
 
 [tool.pyproject-fmt]
+# max_supported_python = "3.13"
 expand_tables = [
     "project.entry-points",
     "project.optional-dependencies",
@@ -119,7 +120,6 @@ expand_tables = [
     "tool.typos",
     "tool.uv.dependency-groups",
 ]
-# max_supported_python = "3.13"
 indent = 4
 keep_full_version = true
 
@@ -143,7 +143,7 @@ testpaths = [
     "tests",
     "typecheck_runner",
 ]
-# other options
+# options
 filterwarnings = [ "error" ]
 log_cli_level = "INFO"
 log_level = "INFO"
