@@ -13,6 +13,7 @@ env:
 
 jobs:
   update:
+    name: Update template with copier
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
@@ -29,6 +30,11 @@ jobs:
             commit-message: "chore: reject new copier update"
             title: Reject new updates detected with copier
     steps:
+      - uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
+        id: generate-token
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
@@ -69,11 +75,13 @@ jobs:
         if: steps.check.outputs.has_changes == '1'
         uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0 # v8.1.0
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ steps.generate-token.outputs.token }}
           add-paths: ${{ matrix.add-paths }}
           commit-message: ${{ matrix.commit-message }}
           branch: ${{ matrix.branch }}
           delete-branch: true
+          sign-commits: true
           branch-suffix: timestamp
           title: ${{ matrix.title }}
           body: |
