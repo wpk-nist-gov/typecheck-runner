@@ -52,8 +52,6 @@ on:
           "all python versions from pyproject.toml and extrta_python_versions"
         value: ${{ jobs.build.outputs.all-python-version }}
 
-permissions: {}
-
 jobs:
   build:
     name: Build & verify package
@@ -68,6 +66,9 @@ jobs:
       minmax-default-python-versions:
         ${{ steps.versions.outputs.minmax_default_python_versions }}
       all-python-version: ${{ steps.versions.outputs.all_python_versions }}
+    permissions:
+      id-token: write
+      attestations: write
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -104,8 +105,8 @@ jobs:
           all_python_versions = list({*python_versions, *extra-python-versions})
 
           print("{default_python_version=:s}")
-          print("{min_python_version=:s})
-          print("{max_python_version=:s})
+          print("{min_python_version=:s}")
+          print("{max_python_version=:s}")
           print("{minmax_python_versions=}")
           print("{minmax_default_python_versions=}")
           print("{all_python_version=}")

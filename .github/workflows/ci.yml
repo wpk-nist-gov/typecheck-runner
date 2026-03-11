@@ -30,6 +30,9 @@ jobs:
     needs: pre_job
     if: needs.pre_job.outputs.should_skip != 'true'
     uses: ./.github/workflows/build.yml
+    permissions:
+      id-token: write
+      attestations: write
     with:
       set-python-outputs: true
       extra-python-versions: "pypy-3.11"
