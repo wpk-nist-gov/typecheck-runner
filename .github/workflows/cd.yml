@@ -39,9 +39,7 @@ jobs:
           attest-build-provenance-github: "true"
 
       - name: Check no changelog fragments
-        if:
-          ${{ github.event_name == 'release' && github.event.action ==
-          'published' }}
+        if: github.event_name == 'release' && github.event.action == 'published'
         run: |
           shopt -s nullglob
           for _ in changelog.d/*.md ; do
@@ -52,9 +50,7 @@ jobs:
         shell: bash
 
       - name: Check version
-        if:
-          ${{ github.event_name == 'release' && github.event.action ==
-          'published' }}
+        if: github.event_name == 'release' && github.event.action == 'published'
         env:
           tag_name: ${{ github.event.release.tag_name }}
           DIST: "/tmp/baipp/dist"
@@ -66,8 +62,8 @@ jobs:
     name: Smoke test package
     runs-on: ubuntu-latest
     if:
-      ${{ (github.event_name == 'release' && github.event.action == 'published')
-      || (github.event_name == 'workflow_dispatch' && inputs.deploy) }}
+      (github.event_name == 'release' && github.event.action == 'published') ||
+      (github.event_name == 'workflow_dispatch' && inputs.deploy)
     needs:
       - dist
     steps:
@@ -92,8 +88,8 @@ jobs:
   publish-testpypi:
     name: Publish package to testpypi
     if:
-      ${{ (github.event_name == 'release' && github.event.action == 'published')
-      || (github.event_name == 'workflow_dispatch' && inputs.deploy) }}
+      (github.event_name == 'release' && github.event.action == 'published') ||
+      (github.event_name == 'workflow_dispatch' && inputs.deploy)
     needs:
       - dist
       - smoke-test
@@ -116,8 +112,8 @@ jobs:
   publish-pypi:
     name: Publish package to pypi
     if:
-      ${{ (github.event_name == 'release' && github.event.action == 'published')
-      || (github.event_name == 'workflow_dispatch' && inputs.deploy) }}
+      (github.event_name == 'release' && github.event.action == 'published') ||
+      (github.event_name == 'workflow_dispatch' && inputs.deploy)
     needs:
       - dist
       - smoke-test
