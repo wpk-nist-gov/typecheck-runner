@@ -250,22 +250,8 @@ jobs:
       - pinact
     runs-on: ubuntu-latest
     steps:
-      - name: Get allowed skip list
-        env:
-          SHOULD_SKIP: ${{ needs.pre_job.outputs.should_skip }}
-          NEEDS: ${{ toJSON(needs) }}
-        run: |
-          if [ "$SHOULD_SKIP" != "true" ]; then
-            allowed_skips="[]"
-          else
-            allowed_skips="$NEEDS"
-          fi
-
-          echo "allowed_skips=${allowed_skips}" >> "$GITHUB_ENV"
-
       - name: Decide whether the needed jobs succeeded or failed
-        if: needs.pre_job.outputs.should_skip != 'true'
         uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
         with:
-          allowed_skips: ${{ env.allowed_skips }}
+          allowed_skips: "lint,typecheck,test,coverage,pinact"
           jobs: ${{ toJSON(needs) }}
