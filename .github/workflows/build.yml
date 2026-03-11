@@ -96,13 +96,13 @@ jobs:
 
           default_python_version = Path(".python-version").read_text().strip()
           python_versions = json.loads(os.getenv("python_classifiers"))
-          extra-python-versions = [_.strip() for _ in os.getenv("extra_python_versions").split(",")]
+          extra_python_versions = [_.strip() for _ in os.getenv("extra_python_versions").split(",")]
 
           min_python_version = python_versions[0]
           max_python_version = python_versions[-1]
           minmax_python_versions = [min_python_version, max_python_version, *extra-python-versions]
           minmax_default_python_versions = list({*minmax_python_versions, default_python_version})
-          all_python_versions = list({*python_versions, *extra-python-versions})
+          all_python_versions = list({*python_versions, *extra_python_versions})
 
           print("{default_python_version=:s}")
           print("{min_python_version=:s}")
