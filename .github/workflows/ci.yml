@@ -12,7 +12,7 @@ concurrency:
 env:
   FORCE_COLOR: "3"
   UVX_CONSTRAINT: requirements/lock/uvx-tools.txt
-  UVX_COMMAND: uvx -crequirements/lock/uvx-tools.txt
+  NOX_COMMAND: uvx -crequirements/lock/uvx-tools.txt nox
   EXTRA_PYTHON_VERSIONS: "pypy-3.11"
 
 permissions: {}
@@ -68,7 +68,6 @@ jobs:
           print("{minmax_python_versions=}")
           print("{minmax_default_python_versions=}")
           print("{all_python_version=}")
-
 
           with open(os.getenv("GITHUB_OUTPUT"), "a") as f:
             f.write(f"{default_python_version=:s}\n")
@@ -159,18 +158,14 @@ jobs:
         with:
           persist-credentials: false
       - uses: ./.github/actions/setup-cached-uv-and-python
+        id: setup-python
         with:
           python-version-file: ".python-version"
           cache-dependency-path: uv.lock
-      - name: Get python version
-        run: |
-          python_version=$(cat .python-version)
-          echo "python_version=${python_version}" >> "$GITHUB_ENV"
-        shell: bash
       - name: typecheck
         env:
-          python_version: ${{ env.python_version }}
-        run: $UVX_COMMAND nox -s typecheck-"$python_version"
+          python_version: ${{ steps.setup-python.outputs.python-version }}
+        run: $NOX_COMMAND -s typecheck-"$python_version"
         shell: bash
 
   test:
@@ -208,9 +203,10 @@ jobs:
         env:
           python_version: ${{ matrix.python-version }}
           options: "++installpkg dist/*.whl"
+          session: ${{ matrix.session || "test" }}
         run: |
           # shellcheck disable=SC2086
-          $UVX_COMMAND nox -s test-"$python_version" -- $options
+          $NOX_COMMAND -s "${session}-${python_version}" -- $options
         shell: bash -euxo pipefail {0}
 
       - name: Upload coverage data
@@ -248,12 +244,12 @@ jobs:
           cache-dependency-path: requirements/lock/uvx-tools.txt
       - name: Run coverage
         run: |
-          $UVX_COMMAND nox -s coverage -- ++coverage combine html markdown
+          $NOX_COMMAND -s coverage -- ++coverage combine html markdown
           cat coverage.md
           cat coverage.md >> "$GITHUB_STEP_SUMMARY"
 
           # fail if under 100%
-          $UVX_COMMAND nox -s coverage -- ++coverage report ++coverage-options --fail-under=100
+          $NOX_COMMAND -s coverage -- ++coverage report ++coverage-options --fail-under=100
         shell: bash
       - name: Upload HTML report if check failed.
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
