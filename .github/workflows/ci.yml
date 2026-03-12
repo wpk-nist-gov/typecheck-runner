@@ -153,6 +153,8 @@ jobs:
         os:
           - ubuntu-latest
           # - windows-latest
+        session:
+          - typecheck
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -162,9 +164,15 @@ jobs:
         with:
           python-version-file: ".python-version"
           cache-dependency-path: uv.lock
+
+      - name: Get python version
+        run: |
+          python_version=$(cat .python-version)
+          echo "python_version=${python_version}" >> "$GITHUB_ENV"
+        shell: bash
       - name: typecheck
         env:
-          python_version: ${{ steps.setup-python.outputs.python-version }}
+          python_version: ${{ env.python_version }}
         run: $NOX_COMMAND -s typecheck-"$python_version"
         shell: bash
 
@@ -203,7 +211,7 @@ jobs:
         env:
           python_version: ${{ matrix.python-version }}
           options: "++installpkg dist/*.whl"
-          session: ${{ matrix.session || 'test' }}
+          session: "test"
         run: |
           # shellcheck disable=SC2086
           $NOX_COMMAND -s "${session}-${python_version}" -- $options
