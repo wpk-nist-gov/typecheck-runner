@@ -207,9 +207,10 @@ jobs:
       - name: Test with nox
         env:
           python_version: ${{ matrix.python-version }}
+          options: "++installpkg dist/*.whl"
         run: >-
-          $UVX_COMMAND nox -s test-"$python_version" -- ++installpkg dist/*.whl
-        shell: bash
+          $UVX_COMMAND nox -s test-"$python_version" -- "$options"
+        shell: bash -euxo pipefail {0}
 
       - name: Upload coverage data
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
