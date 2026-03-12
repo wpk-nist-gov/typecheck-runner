@@ -203,7 +203,7 @@ jobs:
         env:
           python_version: ${{ matrix.python-version }}
           options: "++installpkg dist/*.whl"
-          session: ${{ matrix.session != "" && matrix.session || "test" }}
+          session: ${{ matrix.session != '' && matrix.session || "test" }}
         run: |
           # shellcheck disable=SC2086
           $NOX_COMMAND -s "${session}-${python_version}" -- $options
