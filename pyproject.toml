@@ -6,7 +6,7 @@ requires = [
 
 [project]
 name = "typecheck-runner"
-version = "0.1.7.dev0"
+version = "0.1.6"
 description = "Unified api to multiple typecheckers"
 readme = "README.md"
 keywords = [
@@ -79,6 +79,7 @@ test-extras = [
 required-version = ">=0.7.15"
 default-groups = [ "dev" ]
 fork-strategy = "requires-python"
+exclude-newer = "7 days"
 managed = true
 build-backend.source-include = [ "tests/**" ]
 pip.annotation-style = "line"
@@ -315,6 +316,7 @@ reqs = [
     "prek",
     "pyrefly>=0.37.0",
     "pyright>=1.1.396",
+    "rooster>=0.1.1",
     "scriv",
     "twine>=5.0.0",
     "ty>=0.0.14",
@@ -336,3 +338,22 @@ new_fragment_template = "file: changelog.d/templates/new_fragment.md.j2"
 
 [tool.commitizen]
 use_shortcuts = true
+
+[tool.rooster]
+changelog_contributors = true
+major-labels = [ "breaking" ]
+minor_labels = [ "enhancement" ]
+patch-labels = [ "bug", "documentation" ]
+# options
+ignore-labels = [ "github_action", "internal", "testing" ]
+require-labels = [ "breaking", "bug", "documentation", "enhancement" ]
+version_files = [
+    "pyproject.toml",
+]
+# sections
+section-labels."Breaking changes" = [ "breaking" ]
+section-labels."Bug fixes" = [ "bug" ]
+section-labels.Documentation = [ "documentation" ]
+section-labels.Enhancements = [ "enhancement" ]
+section-labels.Internal = [ "internal" ]
+section-labels."Other changes" = [ "__unknown__" ]

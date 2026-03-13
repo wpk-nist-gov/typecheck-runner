@@ -25,7 +25,7 @@ outputs:
     value: ${{ steps.setup-python.outputs.cache-hit }}
   python-path:
     description: "The absolute path to the Python or PyPy executable."
-    value: ${{ steps.setup-python.outputs.pytyhon-path }}
+    value: ${{ steps.setup-python.outputs.python-path }}
 
 runs:
   using: composite
