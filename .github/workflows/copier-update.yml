@@ -65,13 +65,12 @@ jobs:
           # determine if have any merge conflicts
           if [ "$changed" = "true" ] && ! git merge --no-commit --no-ff; then
             draft='true'
-            conflicted_files=$(git diff --name-only --diff-filter=U)
-            conflict_message="\nFound conflicts.  Fix below files before merge.\n${conflicted_files}"
+            conflict_message="\nFound conflicts.  Fix below files before merge.\n$(git diff --name-only --diff-filter=U)"
           fi
 
           echo "changed=$changed" >> "$GITHUB_OUTPUT"
           echo "draft=$draft" >> "$GITHUB_OUTPUT"
-          echo "conflict_message=$conflicted_files" >> "$GITHUB_OUTPUT"
+          echo "conflict_message=$conflict_message" >> "$GITHUB_OUTPUT"
 
           # git config
           if [ "$changed" = "true" ]; then
