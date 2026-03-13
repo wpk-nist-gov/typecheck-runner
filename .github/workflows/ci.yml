@@ -46,7 +46,9 @@ jobs:
 
   build-package:
     name: Build & verify package
-    needs: pre_job
+    needs:
+      - pre_job
+      - fail-if-draft-pull-request
     if: needs.pre_job.outputs.should_skip != 'true'
     runs-on: ubuntu-latest
     steps:
@@ -106,7 +108,9 @@ jobs:
   lint:
     # only run checks not covered by pre-commit.ci
     name: Lint package
-    needs: pre_job
+    needs:
+      - pre_job
+      - fail-if-draft-pull-request
     if: needs.pre_job.outputs.should_skip != 'true'
     runs-on: ubuntu-latest
     steps:
@@ -142,7 +146,9 @@ jobs:
 
   pinact:
     name: Pin actions
-    needs: pre_job
+    needs:
+      - pre_job
+      - fail-if-draft-pull-request
     if: needs.pre_job.outputs.should_skip != 'true'
     runs-on: ubuntu-latest
     permissions:
@@ -159,7 +165,9 @@ jobs:
 
   typecheck:
     name: Typecheck package
-    needs: pre_job
+    needs:
+      - pre_job
+      - fail-if-draft-pull-request
     if: needs.pre_job.outputs.should_skip != 'true'
     runs-on: ${{ matrix.os }}
     strategy:
@@ -196,6 +204,7 @@ jobs:
     needs:
       - pre_job
       - build-package
+      - fail-if-draft-pull-request
     if: needs.pre_job.outputs.should_skip != 'true'
     runs-on: ${{ matrix.os }}
     strategy:
@@ -245,6 +254,7 @@ jobs:
     needs:
       - pre_job
       - test
+      - fail-if-draft-pull-request
     if: needs.pre_job.outputs.should_skip != 'true'
     runs-on: ubuntu-latest
 
@@ -285,6 +295,7 @@ jobs:
   required-checks-pass:
     if: always()
     needs:
+      - fail-if-draft-pull-request
       - pre_job
       - lint
       - pinact
