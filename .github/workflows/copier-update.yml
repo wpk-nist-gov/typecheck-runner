@@ -78,6 +78,7 @@ jobs:
             git config --global user.name "github-actions[bot]"
             git restore --staged .
           fi
+        shell: bash -euxo pipefail {0}
 
       - name: Create pull request
         if: steps.check.outputs.changed == 'true'
