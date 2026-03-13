@@ -18,9 +18,19 @@ env:
 permissions: {}
 
 jobs:
+  fail-if-draft-pull-request:
+    runs-on: ubuntu-slim
+    if:
+      github.event_name == 'pull_request' && github.event.pull_request.draft ==
+      true
+    steps:
+      - name: Don't run CI on draft PR
+        run: exit 1
+
   pre_job:
     # continue-on-error: true # Uncomment once integration is finished
     runs-on: ubuntu-latest
+    needs: fail-if-draft-pull-request
     outputs:
       should_skip: ${{ steps.skip_check.outputs.should_skip }}
     steps:

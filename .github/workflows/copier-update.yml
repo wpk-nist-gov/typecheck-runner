@@ -1,4 +1,4 @@
-name: Copier update repository
+name: Update copier template
 on:
   schedule:
     - cron: "0 2 * * 1" # Every Monday at 2am
@@ -57,6 +57,7 @@ jobs:
           else
             echo "No .copier-answers.yml file"
           fi
+
           echo "has_changes=$CHANGES" >> "$GITHUB_OUTPUT"
 
       - name: Git config
