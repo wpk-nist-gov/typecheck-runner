@@ -132,55 +132,6 @@ CPY = "CPY"
 # only check file name for notebooks.  Use nbaq for contents.
 check-file = false
 
-# * Testing --------------------------------------------------------------------
-[tool.pytest.ini_options]
-addopts = [
-    "--cov-config=pyproject.toml",
-    "--doctest-glob=*.md",
-    "--doctest-modules",
-    "--pyargs",
-    "--strict-config",
-    "--strict-markers",
-    "-ra",
-]
-testpaths = [
-    "README.md",
-    "tests",
-    "typecheck_runner",
-]
-# options
-filterwarnings = [ "error" ]
-log_cli_level = "INFO"
-log_level = "INFO"
-minversion = "8"
-strict_xfail = "true"
-
-[tool.coverage]
-run.branch = true
-run.source = [
-    "typecheck_runner",
-]
-paths.source = [
-    "src/",
-    # required for installed package doctests
-    ".nox/**/site-packages/",
-    "*/.nox/**/site-packages",
-    "*/src",
-]
-report.exclude_also = [
-    "@overload",
-    "if __name__",
-    "if TYPE_CHECKING:",
-]
-report.include = [
-    "src/*",
-]
-report.omit = [
-    "*/_typing.py",
-    "*/vendored/*",
-]
-report.show_missing = true
-
 # * typecheck ---------------------------------------------------------------------
 [tool.mypy]
 exclude = [
@@ -264,6 +215,55 @@ root = "tests"
 # Disable support for `type: ignore` comments
 analysis.respect-type-ignore-comments = false
 src.include = [ "src", "tests" ]
+
+# * Testing --------------------------------------------------------------------
+[tool.pytest.ini_options]
+addopts = [
+    "--cov-config=pyproject.toml",
+    "--doctest-glob=*.md",
+    "--doctest-modules",
+    "--pyargs",
+    "--strict-config",
+    "--strict-markers",
+    "-ra",
+]
+testpaths = [
+    "README.md",
+    "tests",
+    "typecheck_runner",
+]
+# options
+filterwarnings = [ "error" ]
+log_cli_level = "INFO"
+log_level = "INFO"
+minversion = "8"
+strict_xfail = "true"
+
+[tool.coverage]
+run.branch = true
+run.source = [
+    "typecheck_runner",
+]
+paths.source = [
+    "src/",
+    # required for installed package doctests
+    ".nox/**/site-packages/",
+    "*/.nox/**/site-packages",
+    "*/src",
+]
+report.exclude_also = [
+    "@overload",
+    "if __name__",
+    "if TYPE_CHECKING:",
+]
+report.include = [
+    "src/*",
+]
+report.omit = [
+    "*/_typing.py",
+    "*/vendored/*",
+]
+report.show_missing = true
 
 [tool.pytype]
 inputs = [
