@@ -5,8 +5,6 @@
 
 Changelog for `typecheck-runner`
 
-<<<<<<< before updating
-<!-- scriv-insert-here -->
 
 ## 0.1.2 — 2026-01-15
 
@@ -27,6 +25,3 @@ Changelog for `typecheck-runner`
 ### Changed
 
 - Checkers with `--no-uvx` are now expanded to full path using `shutil.which`.
-=======
-## Initial release
->>>>>>> after updating

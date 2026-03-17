@@ -17,13 +17,8 @@ concurrency:
 env:
   FORCE_COLOR: "3"
   UVX_CONSTRAINT: requirements/lock/uvx-tools.txt
-  UVX_COMMAND: uvx -crequirements/lock/uvx-tools.txt
-<<<<<<< before updating
-  EXTRA_PYTHON_VERSIONS: "pypy-3.11"
-=======
   NOX_COMMAND: uvx -crequirements/lock/uvx-tools.txt nox
-  # EXTRA_PYTHON_VERSIONS: "pypy-3.11"
->>>>>>> after updating
+  EXTRA_PYTHON_VERSIONS: "pypy-3.11"
 
 permissions: {}
 
@@ -205,15 +200,9 @@ jobs:
         os:
           - ubuntu-latest
         python-version:
-<<<<<<< before updating
           ${{ fromJson(needs.build-package.outputs.minmax-python-versions) }}
-=======
-          ${{
-          fromJson(needs.build-package.outputs.minmax-default-python-versions)
-          }}
         session:
           - test
->>>>>>> after updating
         include:
           - os: windows-latest
             python-version:
