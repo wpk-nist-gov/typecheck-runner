@@ -70,14 +70,23 @@ jobs:
 
           # determine if have any merge conflicts
           if [ "$changed" = "true" ] && ! git merge --no-commit --no-ff; then
-            conflict_message="\n\nFiles with conflicts:\n\n$(git diff --name-only --diff-filter=U)"
+            echo "conflict_message<<EOF" >> "$GITHUB_OUTPUT"
+            echo "\nFiles with conflicts:" >> "$GITHUB_OUTPUT"
+            git diff --name-only --diff-filter=U >> "$GITHUB_OUTPUT"
+            echo "EOF" >> "$GITHUB_OUTPUT"
+
             commit_message="$commit_message [skip ci]"
+          else:
+            echo "conflict_message=$conflict_message" >> "$GITHUB_OUTPUT"
           fi
 
           echo "changed=$changed" >> "$GITHUB_OUTPUT"
           echo "commit_message=$commit_message" >> "$GITHUB_OUTPUT"
-          echo "conflict_message=$conflict_message" >> "$GITHUB_OUTPUT"
-          echo "files_changed=$(git status --short)" >> "$GITHUB_OUTPUT"
+
+          echo "files_changes<<EOF" >> "$GITHUB_OUTPUT"
+          echo "\nFiles changed:" >> "$GITHUB_OUTPUT"
+          git status --short >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
 
           # git config
           if [ "$changed" = "true" ]; then
