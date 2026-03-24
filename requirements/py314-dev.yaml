@@ -12,10 +12,8 @@ channels:
   - conda-forge
 dependencies:
   - python=3.14
-  - ipykernel
   - mypy>=1.15.0
   - nox>=2025.5.1
-  - orjson
   - packaging>=25.0
   - pylint
   - pytest
