@@ -638,16 +638,4 @@ def test__main__(mocked_main: Any) -> None:
     with contextlib.suppress(SystemExit):
         import typecheck_runner.__main__  # noqa: F401
 
-<<<<<<< before updating
         mocked_main.assert_called_once_with()
-=======
-def test_example_function(response: tuple[int, int]) -> None:
-    expected = 3
-    assert example_function(*response) == expected
-
-
-def test_command_line_interface() -> None:
-    from typecheck_runner import cli
-
-    assert not cli.main([])
->>>>>>> after updating
