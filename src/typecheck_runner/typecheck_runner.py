@@ -109,7 +109,8 @@ def _get_python_values(
             )
             script = "import sys; info = sys.version_info; print(f'{info.major}.{info.minor}')"
             python_version = (
-                subprocess.check_output([python_executable, "-c", script])
+                subprocess
+                .check_output([python_executable, "-c", script])
                 .decode("utf-8")
                 .strip()
             )
