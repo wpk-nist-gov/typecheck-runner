@@ -294,7 +294,6 @@ reqs = [
 ]
 groups = [
     "basedpyright",
-    "cog",
     "mypy",
     "nox",
 ]
