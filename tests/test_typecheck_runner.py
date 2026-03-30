@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import contextlib
 import os
+import re
 import sys
 from logging import WARNING
 from pathlib import Path
@@ -29,6 +30,13 @@ def _dummy_which(x: str) -> str:
 
 def _identity(x: Any) -> Any:
     return x
+
+
+def test_version() -> None:
+    from typecheck_runner import __version__
+
+    assert isinstance(__version__, str)
+    assert re.match(r"^\d+\.\d+\.\d+.*$", __version__) is not None
 
 
 @pytest.mark.parametrize(
