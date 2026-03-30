@@ -2,6 +2,7 @@
 # pylint: disable=protected-access,use-implicit-booleaness-not-comparison-to-zero
 from __future__ import annotations
 
+<<<<<<< before updating
 import contextlib
 import os
 import sys
@@ -9,6 +10,9 @@ from logging import WARNING
 from pathlib import Path
 from typing import TYPE_CHECKING
 from unittest.mock import call, patch
+=======
+import re
+>>>>>>> after updating
 
 import pytest
 
@@ -31,6 +35,7 @@ def _identity(x: Any) -> Any:
     return x
 
 
+<<<<<<< before updating
 @pytest.mark.parametrize(
     "verbosity",
     [-1, 0, 1, 2],
@@ -63,6 +68,10 @@ def make_fake_venv(
     bin_path.mkdir(parents=True)
 
     (bin_path / exe).write_text("hello")
+=======
+    assert isinstance(__version__, str)
+    assert re.match(r"^\d+\.\d+\.\d+.*$", __version__) is not None
+>>>>>>> after updating
 
 
 @pytest.fixture
