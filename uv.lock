@@ -9,7 +9,7 @@ resolution-markers = [
 ]
 
 [options]
-exclude-newer = "2026-03-23T15:05:26.435921Z"
+exclude-newer = "2026-03-24T21:20:37.1893Z"
 exclude-newer-span = "P7D"
 
 [[package]]
@@ -951,6 +951,7 @@ test-extras = [
     { name = "tomli", marker = "python_full_version < '3.11'" },
 ]
 type = [
+    { name = "nox", marker = "python_full_version >= '3.14'" },
     { name = "pylint" },
     { name = "pytest" },
 ]
@@ -988,6 +989,7 @@ test-extras = [
     { name = "tomli", marker = "python_full_version < '3.11'" },
 ]
 type = [
+    { name = "nox", marker = "python_full_version >= '3.14'", specifier = ">=2025.5.1" },
     { name = "pylint" },
     { name = "pytest" },
 ]

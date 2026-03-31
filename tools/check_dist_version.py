@@ -14,7 +14,7 @@ from argparse import ArgumentParser
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-import pkginfo  # type: ignore[import-not-found] # pyright: ignore[reportMissingImports]  # pylint: disable=import-error
+import pkginfo  # type: ignore[import-not-found] # pyright: ignore[reportMissingImports]  # pylint: disable=import-error # pyrefly: ignore[missing-import] # ty: ignore[unresolved-import]
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -50,7 +50,7 @@ def main(args: Sequence[str] | None = None) -> int:
             code += 1
         print(f"{path} {version=}")
 
-    print("Success: versions match" if code == 0 else "Error: version mismatch")
+    print("Success: versions match" if not code else "Error: version mismatch")
     return code
 
 
