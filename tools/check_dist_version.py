@@ -50,7 +50,7 @@ def main(args: Sequence[str] | None = None) -> int:
             code += 1
         print(f"{path} {version=}")
 
-    print("Success: versions match" if code == 0 else "Error: version mismatch")
+    print("Success: versions match" if not code else "Error: version mismatch")
     return code
 
 
