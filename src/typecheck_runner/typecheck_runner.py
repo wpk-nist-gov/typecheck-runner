@@ -124,7 +124,7 @@ def _get_python_values(
 
 
 def _maybe_add_check_argument(checker: str, args: list[str]) -> list[str]:
-    if checker in {"ty", "pyrefly"} and len(args) == 0:
+    if checker in {"ty", "pyrefly"} and not args:
         return ["check"]
     return args
 
