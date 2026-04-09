@@ -146,6 +146,10 @@ options:
                         options) are treated as ``uvx`` options. For example, passing
                         ``--check "mypy --verbose -- --reinstall"`` will run ``uvx
                         --reinstall mypy --verbose``. Can be specified multiple times.
+                        Note that for checkers `ty` and `pyrefly`, the subcommand
+                        ``check`` will be added if ``--check=ty`` or
+                        ``--check=pyrefly``. To pass extra options, explicitly pass
+                        ``check``. For example, ``--check='ty check --verbose'``.
   --python-executable PYTHON_EXECUTABLE
                         Path to python executable. Defaults to ``sys.executable``. This
                         is passed to ``--python-executable`` (mypy), ``--pythonpath`` in

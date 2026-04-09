@@ -124,8 +124,8 @@ def _get_python_values(
 
 
 def _maybe_add_check_argument(checker: str, args: list[str]) -> list[str]:
-    if checker in {"ty", "pyrefly"} and "check" not in args:
-        return ["check", *args]
+    if checker in {"ty", "pyrefly"} and len(args) == 0:
+        return ["check"]
     return args
 
 
@@ -239,6 +239,10 @@ def get_parser() -> ArgumentParser:
         see ``--uvx-delimiter`` options) are treated as ``uvx`` options. For
         example, passing ``--check "mypy --verbose -- --reinstall"`` will run
         ``uvx --reinstall mypy --verbose``. Can be specified multiple times.
+        Note that for checkers `ty` and `pyrefly`, the subcommand ``check``
+        will be added if ``--check=ty`` or ``--check=pyrefly``. To pass extra
+        options, explicitly pass ``check``. For example, ``--check='ty check
+        --verbose'``.
         """,
     )
     _ = parser.add_argument(

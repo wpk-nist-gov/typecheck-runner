@@ -267,10 +267,13 @@ def test__get_python_values(
     ("checker", "args", "expected"),
     [
         ("mypy", ["a", "b", "c"], ["a", "b", "c"]),
-        ("ty", ["a", "b", "c"], ["check", "a", "b", "c"]),
+        ("ty", [], ["check"]),
+        ("ty", ["a", "b", "c"], ["a", "b", "c"]),
         ("ty", ["check", "a", "b", "c"], ["check", "a", "b", "c"]),
-        ("pyrefly", ["--verbose"], ["check", "--verbose"]),
+        ("pyrefly", [], ["check"]),
+        ("pyrefly", ["--verbose"], ["--verbose"]),
         ("pyrefly", ["--verbose", "check"], ["--verbose", "check"]),
+        ("pyrefly", ["--verbose", "suppress"], ["--verbose", "suppress"]),
     ],
 )
 def test__maybe_add_check_argument(
@@ -331,7 +334,15 @@ def test__maybe_add_check_argument(
             id="with optional extras",
         ),
         pytest.param(
-            "ty -a",
+            "ty",
+            None,
+            ["--verbose"],
+            "ty",
+            ["uvx", "--verbose", "ty", "check"],
+            id="with optional extras add check",
+        ),
+        pytest.param(
+            "ty check -a",
             None,
             ["--verbose"],
             "ty",
@@ -386,10 +397,16 @@ def test__parser_command_uvx(
             id="path with options",
         ),
         pytest.param(
-            "/path/to/ty -b --c",
+            "/path/to/ty",
+            "ty",
+            ["/hello/path/to/ty", "check"],
+            id="path with options ty no check",
+        ),
+        pytest.param(
+            "/path/to/ty check -b --c",
             "ty",
             ["/hello/path/to/ty", "check", "-b", "--c"],
-            id="path with options ty no check",
+            id="path with options ty check",
         ),
     ],
 )
