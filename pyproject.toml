@@ -72,6 +72,10 @@ pytest = [ "pytest" ]
 test-extras = [
     { include-group = "test" },
 ]
+<<<<<<< before updating
+=======
+typecheck-runner = [ "typecheck-runner>=0.1.6; python_version>'3.9'" ]
+>>>>>>> after updating
 
 # * uv -------------------------------------------------------------------------
 [tool.uv]
