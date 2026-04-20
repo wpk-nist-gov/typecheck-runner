@@ -66,7 +66,7 @@ basedpyright = [ "basedpyright>=1.31.3" ]
 cog = [ "cogapp" ]
 ipython = [ "ipython" ]
 mypy = [ "mypy[faster-cache]>=1.20.1" ]
-nox = [ "nox>=2025.5.1" ]
+nox = [ "nox>=2026.4.10" ]
 pylint = [ "pylint" ]
 pytest = [ "pytest" ]
 test-extras = [
