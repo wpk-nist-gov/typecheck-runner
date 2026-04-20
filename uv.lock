@@ -9,7 +9,7 @@ resolution-markers = [
 ]
 
 [options]
-exclude-newer = "2026-04-13T05:18:48.759569655Z"
+exclude-newer = "2026-04-13T13:50:41.816966Z"
 exclude-newer-span = "P7D"
 
 [[package]]
@@ -975,7 +975,7 @@ requires-dist = [{ name = "packaging", specifier = ">=25.0" }]
 basedpyright = [{ name = "basedpyright", specifier = ">=1.31.3" }]
 cog = [{ name = "cogapp", marker = "python_full_version >= '3.14'" }]
 dev = [
-    { name = "mypy", extras = ["faster-cache"], marker = "python_full_version >= '3.14'", specifier = ">=1.20.0" },
+    { name = "mypy", extras = ["faster-cache"], marker = "python_full_version >= '3.14'", specifier = ">=1.20.1" },
     { name = "nox", marker = "python_full_version >= '3.14'", specifier = ">=2025.5.1" },
     { name = "pylint", marker = "python_full_version >= '3.14'" },
     { name = "pytest", marker = "python_full_version >= '3.14'" },
@@ -984,7 +984,7 @@ dev = [
     { name = "tomli", marker = "python_version < '0'" },
 ]
 ipython = [{ name = "ipython", marker = "python_full_version >= '3.14'" }]
-mypy = [{ name = "mypy", extras = ["faster-cache"], marker = "python_full_version >= '3.14'", specifier = ">=1.20.0" }]
+mypy = [{ name = "mypy", extras = ["faster-cache"], marker = "python_full_version >= '3.14'", specifier = ">=1.20.1" }]
 nox = [{ name = "nox", marker = "python_full_version >= '3.14'", specifier = ">=2025.5.1" }]
 pylint = [{ name = "pylint" }]
 pytest = [{ name = "pytest" }]
