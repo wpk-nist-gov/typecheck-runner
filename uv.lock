@@ -1041,10 +1041,10 @@ type = [
 requires-dist = [{ name = "packaging", specifier = ">=25.0" }]
 
 [package.metadata.requires-dev]
-basedpyright = [{ name = "basedpyright", specifier = ">=1.39.3" }]
+basedpyright = [{ name = "basedpyright", specifier = ">=1.39.4" }]
 cog = [{ name = "cogapp", marker = "python_full_version >= '3.14'" }]
 dev = [
-    { name = "mypy", extras = ["faster-cache"], marker = "python_full_version >= '3.14'", specifier = ">=1.20.2" },
+    { name = "mypy", extras = ["faster-cache"], marker = "python_full_version >= '3.14'", specifier = ">=2.1.0" },
     { name = "nox", marker = "python_full_version >= '3.14'", specifier = ">=2026.4.10" },
     { name = "pylint", marker = "python_full_version >= '3.14'" },
     { name = "pytest", marker = "python_full_version >= '3.14'" },
@@ -1053,7 +1053,7 @@ dev = [
     { name = "tomli", marker = "python_version < '0'" },
 ]
 ipython = [{ name = "ipython", marker = "python_full_version >= '3.14'" }]
-mypy = [{ name = "mypy", extras = ["faster-cache"], marker = "python_full_version >= '3.14'", specifier = ">=1.20.2" }]
+mypy = [{ name = "mypy", extras = ["faster-cache"], marker = "python_full_version >= '3.14'", specifier = ">=2.1.0" }]
 nox = [{ name = "nox", marker = "python_full_version >= '3.14'", specifier = ">=2026.4.10" }]
 pylint = [{ name = "pylint" }]
 pytest = [{ name = "pytest" }]

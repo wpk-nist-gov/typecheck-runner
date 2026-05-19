@@ -276,12 +276,6 @@ python = "default"
 channels = "conda-forge"
 style = "yaml"
 conda-deps = "pip"
-<<<<<<< before updating
-=======
-
-[tool.pyproject2conda.dependencies]
-pytest-accept = { pip = true }
->>>>>>> after updating
 
 [tool.pyproject2conda.envs.dev]
 groups = "dev"
