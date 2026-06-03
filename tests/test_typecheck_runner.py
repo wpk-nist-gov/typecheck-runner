@@ -13,6 +13,7 @@ from unittest.mock import call, patch
 
 import pytest
 
+<<<<<<< before updating
 from typecheck_runner import typecheck_runner
 
 if TYPE_CHECKING:
@@ -30,6 +31,9 @@ def _dummy_which(x: str) -> str:
 
 def _identity(x: Any) -> Any:
     return x
+=======
+from typecheck_runner import cli, example_function
+>>>>>>> after updating
 
 
 def test_version() -> None:
@@ -658,9 +662,14 @@ def test_main_version(mocked_print: Any) -> None:
     mocked_print.assert_called_once_with("typecheck-runner", __version__)
 
 
+<<<<<<< before updating
 @patch("typecheck_runner.typecheck_runner.main", return_value=0)
 def test__main__(mocked_main: Any) -> None:
     with contextlib.suppress(SystemExit):
         import typecheck_runner.__main__  # noqa: F401
 
         mocked_main.assert_called_once_with()
+=======
+def test_command_line_interface() -> None:
+    assert not cli.main([])
+>>>>>>> after updating
