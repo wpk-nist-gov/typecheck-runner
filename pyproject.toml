@@ -145,17 +145,6 @@ enable_error_code = [
 strict = true
 warn_unused_configs = true
 
-<<<<<<< before updating
-=======
-# [[tool.mypy.overrides]]
-# module = [  ]
-# ignore_missing_imports = true
-#
-# [[tool.mypy.overrides]]
-# module = [  ]
-# ignore_errors = true
-#
->>>>>>> after updating
 [tool.pyrefly]
 enabled-ignores = [ "pyrefly" ]
 project-includes = [
@@ -183,25 +172,7 @@ exclude = [
     ".tox/**",
     ".venv/**",
 ]
-<<<<<<< before updating
-include = [
-    "src",
-    "tests",
-    # tools
-    "noxfile.py",
-    "tools",
-]
-typeCheckingMode = "strict"
-# typeCheckingMode = "standard"
-=======
 enableTypeIgnoreComments = false
->>>>>>> after updating
-# strict = [
-#     "src",
-#     "tests",
-#     "noxfile.py",
-#     "tools/*.py",
-# ]
 # options
 # reportMissingSuperCall = true
 deprecateTypingAliases = true
