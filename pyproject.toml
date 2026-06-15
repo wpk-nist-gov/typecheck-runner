@@ -62,7 +62,7 @@ type = [
     { include-group = "pytest" },
 ]
 # other groups
-basedpyright = [ "basedpyright>=1.39.6" ]
+basedpyright = [ "basedpyright>=1.39.7" ]
 cog = [ "cogapp" ]
 ipython = [ "ipython" ]
 mypy = [ "mypy[faster-cache]>=2.1.0" ]
