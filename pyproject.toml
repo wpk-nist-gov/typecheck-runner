@@ -63,19 +63,6 @@ type = [
 ]
 # other groups
 basedpyright = [ "basedpyright>=1.39.7" ]
-<<<<<<< before updating
-cog = [ "cogapp" ]
-=======
-docs-live = [
-    "sphinx-autobuild",
-    { include-group = "docs" },
-]
-docs-spelling = [
-    "pyenchant",
-    "sphinxcontrib-spelling",
-    { include-group = "docs" },
-]
->>>>>>> after updating
 ipython = [ "ipython" ]
 mypy = [ "mypy[faster-cache]>=2.1.0" ]
 nox = [ "nox>=2026.4.10" ]
@@ -99,7 +86,6 @@ pip.generate-hashes = true
 [tool.uv.dependency-groups]
 dev.requires-python = ">=3.14"
 # other tools
-cog.requires-python = ">=3.14"
 ipython.requires-python = ">=3.14"
 mypy.requires-python = ">=3.14"
 nox.requires-python = ">=3.14"
