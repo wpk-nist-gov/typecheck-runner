@@ -298,13 +298,18 @@ pip-deps = [
 groups = [
     "basedpyright",
     "mypy",
+<<<<<<< before updating
     "nox",
+=======
+    "typecheck-runner",
+>>>>>>> after updating
 ]
 skip-package = true
 style = "requirements"
 
 [tool.uv-locker]
 scripts = [
+    "noxfile.py",
     "tools/check_dist_version.py",
     "tools/sync_pyproject_min_versions.py",
 ]
