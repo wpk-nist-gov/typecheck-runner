@@ -298,11 +298,6 @@ pip-deps = [
 groups = [
     "basedpyright",
     "mypy",
-<<<<<<< before updating
-    "nox",
-=======
-    "typecheck-runner",
->>>>>>> after updating
 ]
 skip-package = true
 style = "requirements"
