@@ -63,7 +63,6 @@ type = [
 ]
 # other groups
 basedpyright = [ "basedpyright>=1.39.7" ]
-cog = [ "cogapp" ]
 ipython = [ "ipython" ]
 mypy = [ "mypy[faster-cache]>=2.1.0" ]
 nox = [ "nox>=2026.4.10" ]
@@ -87,7 +86,6 @@ pip.generate-hashes = true
 [tool.uv.dependency-groups]
 dev.requires-python = ">=3.14"
 # other tools
-cog.requires-python = ">=3.14"
 ipython.requires-python = ">=3.14"
 mypy.requires-python = ">=3.14"
 nox.requires-python = ">=3.14"
@@ -293,7 +291,7 @@ pip-deps = [
     "pyright>=1.1.410",
     "rooster>=0.1.1",
     "twine>=6.2.0",
-    "ty>=0.0.44",
+    "ty>=0.0.46",
 ]
 groups = [
     "basedpyright",
@@ -306,6 +304,7 @@ style = "requirements"
 scripts = [
     "noxfile.py",
     "tools/check_dist_version.py",
+    "tools/cog_runner.py",
     "tools/sync_pyproject_min_versions.py",
 ]
 
