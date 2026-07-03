@@ -58,7 +58,7 @@ repos:
       - id: pyproject-fmt
   # ** validate (schema-store)
   - repo: https://github.com/henryiii/validate-pyproject-schema-store
-    rev: 2026.06.23
+    rev: 2026.06.25
     hooks:
       - id: validate-pyproject
         alias: validate-pyproject-schema-store
@@ -97,7 +97,7 @@ repos:
 
   # * Linting
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.19
+    rev: v0.15.20
     hooks:
       - id: ruff-check
         alias: ruff
