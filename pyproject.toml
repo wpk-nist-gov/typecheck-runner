@@ -1,7 +1,7 @@
 [build-system]
 build-backend = "uv_build"
 requires = [
-    "uv-build>=0.11.24,<0.12.0",
+    "uv-build>=0.11.25,<0.12.0",
 ]
 
 [project]
@@ -62,7 +62,7 @@ type = [
     { include-group = "pytest" },
 ]
 # other groups
-basedpyright = [ "basedpyright>=1.39.8" ]
+basedpyright = [ "basedpyright>=1.39.9" ]
 ipython = [ "ipython" ]
 mypy = [ "mypy[faster-cache]>=2.1.0" ]
 nox = [ "nox>=2026.4.10" ]
@@ -290,7 +290,7 @@ pip-deps = [
     "pyright>=1.1.411",
     "rooster>=0.1.1",
     "twine>=6.2.0",
-    "ty>=0.0.54",
+    "ty>=0.0.55",
 ]
 groups = [
     "basedpyright",
