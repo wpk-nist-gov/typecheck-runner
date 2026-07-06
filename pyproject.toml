@@ -155,6 +155,12 @@ search-path = [ "." ]
 
 [tool.pyright]
 typeCheckingMode = "strict"
+# strict = [
+#     "noxfile.py",
+#     "src",
+#     "tests",
+#     "tools/*.py",
+# ]
 include = [
     "noxfile.py",
     "src",
