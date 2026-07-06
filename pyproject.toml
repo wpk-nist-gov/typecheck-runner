@@ -63,6 +63,18 @@ type = [
 ]
 # other groups
 basedpyright = [ "basedpyright>=1.39.9" ]
+<<<<<<< before updating
+=======
+docs-live = [
+    "sphinx-autobuild",
+    { include-group = "docs" },
+]
+docs-spelling = [
+    "pyenchant",
+    "sphinxcontrib-spelling",
+    { include-group = "docs" },
+]
+>>>>>>> after updating
 ipython = [ "ipython" ]
 mypy = [ "mypy[faster-cache]>=2.1.0" ]
 nox = [ "nox>=2026.4.10" ]
@@ -155,6 +167,12 @@ search-path = [ "." ]
 
 [tool.pyright]
 typeCheckingMode = "strict"
+# strict = [
+#     "noxfile.py",
+#     "src",
+#     "tests",
+#     "tools/*.py",
+# ]
 include = [
     "noxfile.py",
     "src",
