@@ -6,11 +6,6 @@ Top level API (:mod:`typecheck_runner`)
 from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version as _version
 
-<<<<<<< before updating
-=======
-from .core import example_function
-
->>>>>>> after updating
 try:  # ruff:ignore[non-empty-init-module]
     __version__ = _version("typecheck-runner")
 except PackageNotFoundError:  # pragma: no cover
