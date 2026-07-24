@@ -1,4 +1,4 @@
-# ruff: noqa: SLF001
+# ruff:file-ignore[private-member-access]
 # pylint: disable=protected-access,use-implicit-booleaness-not-comparison-to-zero
 from __future__ import annotations
 
@@ -412,7 +412,7 @@ def test__parser_command_uvx(
 )
 @patch("typecheck_runner.typecheck_runner.shutil.which", side_effect=_dummy_which)
 def test__parse_command_no_uvx(
-    mock_which: Any,  # noqa: ARG001
+    mock_which: Any,  # ruff:ignore[unused-function-argument]
     command: str,
     expected_command: str,
     expected_args: list[str],
@@ -427,7 +427,7 @@ def test__parse_command_no_uvx(
 def test__parse_command_no_uvx_no_which() -> None:
     with patch(
         "typecheck_runner.typecheck_runner.shutil.which",
-        side_effect=lambda x: None,  # pyright: ignore[reportUnknownLambdaType]  # noqa: ARG005
+        side_effect=lambda x: None,  # pyright: ignore[reportUnknownLambdaType]  # ruff:ignore[unused-lambda-argument]
     ):
         assert typecheck_runner._parse_command("hello -b --c", True, "", []) == (
             "hello",
@@ -575,7 +575,7 @@ def test__run_checker(
 @patch("typecheck_runner.typecheck_runner._run_checker", autospec=True, return_value=0)
 @patch("typecheck_runner.typecheck_runner.shutil.which", side_effect=_dummy_which)
 def test_main(
-    mocked_which: Any,  # noqa: ARG001
+    mocked_which: Any,  # ruff:ignore[unused-function-argument]
     mocked_run_checker: Any,
     checkers: list[str],
     args: Sequence[str],
@@ -621,7 +621,7 @@ def test_main(
 @patch("typecheck_runner.typecheck_runner._run_checker", autospec=True, return_value=1)
 @patch("typecheck_runner.typecheck_runner.shutil.which", side_effect=_identity)
 def test_main_fail_fast(
-    mocked_which: Any,  # noqa: ARG001
+    mocked_which: Any,  # ruff:ignore[unused-function-argument]
     mocked_run_checker: Any,
     checkers: list[str],
     args: Sequence[str],
@@ -646,7 +646,7 @@ def test_main_fail_fast(
 def test_main_help(
     mocked_run_checker: Any,
 ) -> None:
-    assert typecheck_runner.main([]) == 2  # noqa: PLR2004
+    assert typecheck_runner.main([]) == 2  # ruff:ignore[magic-value-comparison]
     assert mocked_run_checker.call_args_list == []
 
 
@@ -661,6 +661,6 @@ def test_main_version(mocked_print: Any) -> None:
 @patch("typecheck_runner.typecheck_runner.main", return_value=0)
 def test__main__(mocked_main: Any) -> None:
     with contextlib.suppress(SystemExit):
-        import typecheck_runner.__main__  # noqa: F401
+        import typecheck_runner.__main__  # ruff:ignore[unused-import]
 
         mocked_main.assert_called_once_with()

@@ -381,7 +381,7 @@ def main(args: Sequence[str] | None = None) -> int:
     if options.version:
         from typecheck_runner import __version__
 
-        print("typecheck-runner", __version__)  # noqa: T201
+        print("typecheck-runner", __version__)  # ruff:ignore[print]
         return 0
 
     if not options.checkers:
