@@ -301,6 +301,7 @@ pip-deps = [
 groups = [
     "basedpyright",
     "mypy",
+    "nox",
 ]
 skip-package = true
 style = "requirements"
