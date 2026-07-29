@@ -8,11 +8,7 @@ ci:
     - cog-readme
     - uv-lock
     - pip-compile
-<<<<<<< before updating
-
-=======
     - sync-pyproject-min-versions
->>>>>>> after updating
 default_install_hook_types:
   - pre-commit
   - commit-msg
