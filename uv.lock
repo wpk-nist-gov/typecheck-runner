@@ -1023,7 +1023,7 @@ requires-dist = [{ name = "packaging", specifier = ">=25.0" }]
 basedpyright = [{ name = "basedpyright", specifier = ">=1.39.9" }]
 dev = [
     { name = "mypy", extras = ["faster-cache"], marker = "python_full_version >= '3.14'", specifier = ">=2.3.0" },
-    { name = "nox", marker = "python_full_version >= '3.14'", specifier = ">=2026.4.10" },
+    { name = "nox", marker = "python_full_version >= '3.14'", specifier = ">=2026.7.11" },
     { name = "pylint", marker = "python_full_version >= '3.14'" },
     { name = "pytest", marker = "python_full_version >= '3.14'" },
     { name = "pytest-cov", marker = "python_full_version >= '3.14'" },
@@ -1032,7 +1032,7 @@ dev = [
 ]
 ipython = [{ name = "ipython", marker = "python_full_version >= '3.14'" }]
 mypy = [{ name = "mypy", extras = ["faster-cache"], marker = "python_full_version >= '3.14'", specifier = ">=2.3.0" }]
-nox = [{ name = "nox", marker = "python_full_version >= '3.14'", specifier = ">=2026.4.10" }]
+nox = [{ name = "nox", marker = "python_full_version >= '3.14'", specifier = ">=2026.7.11" }]
 pylint = [{ name = "pylint" }]
 pytest = [{ name = "pytest" }]
 test = [
@@ -1048,7 +1048,7 @@ test-extras = [
     { name = "tomli", marker = "python_full_version < '3.11'" },
 ]
 type = [
-    { name = "nox", marker = "python_full_version >= '3.14'", specifier = ">=2026.4.10" },
+    { name = "nox", marker = "python_full_version >= '3.14'", specifier = ">=2026.7.11" },
     { name = "pylint" },
     { name = "pytest" },
 ]
