@@ -1,11 +1,7 @@
 [build-system]
 build-backend = "uv_build"
 requires = [
-<<<<<<< before updating
-    "uv-build>=0.12.4,<0.13.0",
-=======
     "uv-build>=0.12.5,<0.13.0",
->>>>>>> after updating
 ]
 
 [project]
@@ -41,17 +37,11 @@ dependencies = [
     "packaging>=25.0",
 ]
 
-<<<<<<< before updating
-[project.scripts]
-typecheck-runner = "typecheck_runner.typecheck_runner:main"
-
-=======
->>>>>>> after updating
 [project.urls]
 Homepage = "https://github.com/wpk-nist-gov/typecheck-runner"
 
 [project.scripts]
-typecheck_runner = "typecheck_runner.cli:main"
+typecheck-runner = "typecheck_runner.typecheck_runner:main"
 
 [dependency-groups]
 dev = [
@@ -73,18 +63,6 @@ type = [
 ]
 # other groups
 basedpyright = [ "basedpyright>=1.39.10" ]
-<<<<<<< before updating
-=======
-docs-live = [
-    "sphinx-autobuild",
-    { include-group = "docs" },
-]
-docs-spelling = [
-    "pyenchant",
-    "sphinxcontrib-spelling",
-    { include-group = "docs" },
-]
->>>>>>> after updating
 ipython = [ "ipython" ]
 mypy = [ "mypy[faster-cache]>=2.3.1" ]
 nox = [ "nox>=2026.8.10" ]
@@ -341,14 +319,6 @@ paths.source = [
     "*/.nox/**/site-packages",
     "*/src",
 ]
-<<<<<<< before updating
-report.exclude_also = [
-    "@overload",
-    "if __name__",
-    "if TYPE_CHECKING:",
-]
-=======
->>>>>>> after updating
 report.include = [
     "src/*",
 ]
@@ -358,6 +328,7 @@ report.omit = [
 ]
 report.exclude_also = [
     "@overload",
+    "if __name__",
     "if TYPE_CHECKING:",
 ]
 report.show_missing = true
@@ -399,11 +370,7 @@ pip-deps = [
     "pyright>=1.1.411",
     "rooster>=0.1.1",
     "twine>=7.0.0",
-<<<<<<< before updating
-    "ty>=0.0.71",
-=======
     "ty>=0.0.72",
->>>>>>> after updating
 ]
 groups = [
     "basedpyright",
