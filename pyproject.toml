@@ -65,7 +65,7 @@ type = [
 basedpyright = [ "basedpyright>=1.39.10" ]
 ipython = [ "ipython" ]
 mypy = [ "mypy[faster-cache]>=2.3.1" ]
-nox = [ "nox>=2026.8.10" ]
+nox = [ "nox>=2026.8.17" ]
 pylint = [ "pylint" ]
 pytest = [ "pytest" ]
 test-extras = [
