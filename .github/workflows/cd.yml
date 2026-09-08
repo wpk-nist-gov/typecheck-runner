@@ -61,7 +61,7 @@ jobs:
         with:
           name: Packages
           path: dist
-      - uses: ./.github/actions/setup-cached-uv-and-python
+      - uses: $/.github/actions/setup-cached-uv-and-python
         with:
           python-version-file: ".python-version"
       - name: Smoke test wheel
