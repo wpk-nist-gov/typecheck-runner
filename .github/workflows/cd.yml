@@ -19,38 +19,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-<<<<<<< before updating
 permissions: {}
 
 jobs:
-=======
-jobs:
-  docs:
-    permissions:
-      contents: write
-    uses: $/.github/workflows/docs.yml
-    with:
-      deploy:
-        ${{ (github.event_name == 'release' && github.event.action ==
-        'published') || (github.event_name == 'workflow_dispatch' &&
-        inputs.deploy) }}
-
-  # would like to do this with a reusable workflow
-  # see https://github.com/pypa/gh-action-pypi-publish/issues/166
-  # dist:
-  #   permissions:
-  #     id-token: write
-  #     attestations: write
-  #   uses: $/.github/workflows/pypi-package.yml
-  #   with:
-  #     deploy:
-  #       ${{ (github.event_name == 'release' && github.event.action ==
-  #       'published') || (github.event_name == 'workflow_dispatch' &&
-  #       inputs.deploy) }}
-  #     check-package:
-  #       ${{ github.event_name == 'release' && github.event.action == 'published' }}
-  #     smoke-test: false
->>>>>>> after updating
   dist:
     name: Build and verify package
     runs-on: ubuntu-latest

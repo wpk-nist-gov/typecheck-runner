@@ -282,18 +282,6 @@ jobs:
           path: htmlcov
         if: ${{ failure() }}
 
-<<<<<<< before updating
-=======
-  docs:
-    needs: pre_job
-    if: needs.pre_job.outputs.should_skip != 'true'
-    permissions:
-      contents: write
-    uses: $/.github/workflows/docs.yml
-    with:
-      deploy: false
-
->>>>>>> after updating
   # Ensure everything required is passing for branch protection.
   required-checks-pass:
     if: always()
