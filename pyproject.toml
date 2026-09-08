@@ -1,11 +1,7 @@
 [build-system]
 build-backend = "uv_build"
 requires = [
-<<<<<<< before updating
-    "uv-build>=0.12.7,<0.13.0",
-=======
     "uv-build>=0.12.8,<0.13.0",
->>>>>>> after updating
 ]
 
 [project]
@@ -295,8 +291,8 @@ analysis.respect-type-ignore-comments = false
 minversion = "8"
 testpaths = [
     "README.md",
-    "typecheck_runner",
     "tests",
+    "typecheck_runner",
 ]
 addopts = [
     "--cov-config=pyproject.toml",
@@ -307,14 +303,6 @@ addopts = [
     "--strict-markers",
     "-ra",
 ]
-<<<<<<< before updating
-testpaths = [
-    "README.md",
-    "tests",
-    "typecheck_runner",
-]
-=======
->>>>>>> after updating
 # options
 filterwarnings = [ "error" ]
 log_level = "INFO"
@@ -377,18 +365,14 @@ pip-deps = [
     # these used solely for specking tools to be run via uvx ...
     "conda-lock>=4.0.2",
     "copier-template-extensions>=0.3.3",
-    "copier>=9.18.1",
+    "copier>=9.17.2",
     "grayskull>=3.1.1",
     "prek>=0.5.2",
     "pyrefly>=1.2.0",
     "pyright>=1.1.411",
     "rooster>=0.1.1",
     "twine>=7.0.0",
-<<<<<<< before updating
     "ty>=0.0.75",
-=======
-    "ty>=0.0.77",
->>>>>>> after updating
 ]
 groups = [
     "basedpyright",
