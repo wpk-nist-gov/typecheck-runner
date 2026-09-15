@@ -62,7 +62,7 @@ type = [
     { include-group = "pytest" },
 ]
 # other groups
-basedpyright = [ "basedpyright>=1.39.10" ]
+basedpyright = [ "basedpyright>=1.40.0" ]
 ipython = [ "ipython" ]
 mypy = [ "mypy[faster-cache]>=2.3.1" ]
 nox = [ "nox>=2026.8.17" ]
@@ -365,14 +365,14 @@ pip-deps = [
     # these used solely for specking tools to be run via uvx ...
     "conda-lock>=4.0.2",
     "copier-template-extensions>=0.3.3",
-    "copier>=9.18.1",
+    "copier>=9.18.2",
     "grayskull>=3.2.0",
     "prek>=0.5.3",
     "pyrefly>=1.2.0",
     "pyright>=1.1.411",
     "rooster>=0.1.1",
     "twine>=7.0.0",
-    "ty>=0.0.78",
+    "ty>=0.0.79",
 ]
 groups = [
     "basedpyright",
