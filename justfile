@@ -172,7 +172,11 @@ update-deps: (lock "--upgrade") sync-pyproject-min-versions lint-upgrade
 
 # * Typecheck ---------------------------------------------------------------------
 
+<<<<<<< before updating
 TYPECHECK_UVRUN_OPTS := "--group=type --no-dev"
+=======
+TYPECHECK_UVRUN_OPTS := "--no-dev --group=type"
+>>>>>>> after updating
 
 _typecheck *check_options:
     {{ UVRUN }} {{ TYPECHECK_UVRUN_OPTS }} -m typecheck_runner -v {{ UVX_OPTS }} {{ check_options }}
