@@ -63,20 +63,7 @@ type = [
     { include-group = "pytest" },
 ]
 # other groups
-<<<<<<< before updating
-basedpyright = [ "basedpyright>=1.40.0" ]
-=======
 basedpyright = [ "basedpyright>=1.40.1" ]
-docs-live = [
-    "sphinx-autobuild",
-    { include-group = "docs" },
-]
-docs-spelling = [
-    "pyenchant",
-    "sphinxcontrib-spelling",
-    { include-group = "docs" },
-]
->>>>>>> after updating
 ipython = [ "ipython" ]
 mypy = [ "mypy[faster-cache]>=2.3.1" ]
 nox = [ "nox>=2026.8.17" ]
