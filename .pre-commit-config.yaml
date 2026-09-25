@@ -68,7 +68,7 @@ repos:
       - id: pyproject-fmt
   # ** validate (schema-store)
   - repo: https://github.com/henryiii/validate-pyproject-schema-store
-    rev: 2026.09.11
+    rev: 2026.09.17
     hooks:
       - id: validate-pyproject
         alias: validate-pyproject-schema-store
@@ -82,7 +82,7 @@ repos:
 
   # * Prettier
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: v3.9.6
+    rev: v3.9.8
     hooks:
       - id: prettier
         alias: markdownlint
@@ -107,7 +107,7 @@ repos:
 
   # * Linting
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.16.7
+    rev: v0.16.8
     hooks:
       - id: ruff-check
         alias: ruff
@@ -126,7 +126,7 @@ repos:
   # * Spelling
   # ** typos
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.50.1
+    rev: v1.50.2
     hooks:
       - id: typos
         exclude_types: [jupyter]
@@ -143,7 +143,7 @@ repos:
           - "--custom-command=prek run pyproject2conda-project --all-files"
   # ** uv
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.12.13
+    rev: 0.12.16
     hooks:
       - id: uv-lock
         alias: requirements
