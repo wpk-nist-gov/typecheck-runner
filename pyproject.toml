@@ -174,19 +174,12 @@ ignore = [
     "PY004",  # no docs for simple tool
 ]
 
-<<<<<<< before updating
-=======
-[tool.check-wheel-contents]
-src_dir = [ "src" ]
-toplevel = [ "typecheck_runner" ]
-
 [tool.deptry]
 known_first_party = [ "typecheck_runner" ]
 # Group: ignores
 per_rule_ignores.DEP001 = [ "pkginfo" ]
 per_rule_ignores.DEP004 = [ "nox", "pytest" ]
 
->>>>>>> after updating
 [tool.pyproject-fmt]
 indent = 4
 keep_full_version = true
