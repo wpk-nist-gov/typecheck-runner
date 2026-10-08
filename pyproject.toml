@@ -174,6 +174,12 @@ ignore = [
     "PY004",  # no docs for simple tool
 ]
 
+[tool.deptry]
+known_first_party = [ "typecheck_runner" ]
+# Group: ignores
+per_rule_ignores.DEP001 = [ "pkginfo" ]
+per_rule_ignores.DEP004 = [ "nox", "pytest" ]
+
 [tool.pyproject-fmt]
 indent = 4
 keep_full_version = true
@@ -398,6 +404,7 @@ pip-deps = [
     "conda-lock>=4.0.2",
     "copier-template-extensions>=0.3.3",
     "copier>=9.18.2",
+    "deptry>=0.25.1",
     "grayskull>=3.2.0",
     "prek>=0.5.5",
     "pyrefly>=1.3.2",
