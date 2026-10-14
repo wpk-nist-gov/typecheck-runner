@@ -19,17 +19,7 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-<<<<<<< before updating
 permissions: {}
-=======
-jobs:
-  docs:
-    permissions:
-      contents: write
-    uses: $/.github/workflows/docs.yml
-    with:
-      deploy: ${{ (github.event_name == 'release' && github.event.action == 'published') || (github.event_name == 'workflow_dispatch' && inputs.deploy) }}
->>>>>>> after updating
 
 jobs:
   dist:
@@ -56,14 +46,8 @@ jobs:
 
   smoke-test:
     name: Smoke test package
-<<<<<<< before updating
     runs-on: ubuntu-latest
-    if:
-      (github.event_name == 'release' && github.event.action == 'published') ||
-      (github.event_name == 'workflow_dispatch' && inputs.deploy)
-=======
     if: (github.event_name == 'release' && github.event.action == 'published') || (github.event_name == 'workflow_dispatch' && inputs.deploy)
->>>>>>> after updating
     needs:
       - dist
     steps:

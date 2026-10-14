@@ -192,12 +192,7 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-<<<<<<< before updating
-        python-version:
-          ${{ fromJson(needs.build-package.outputs.minmax-python-versions) }}
-=======
-        python-version: ${{ fromJson(needs.build-package.outputs.minmax-default-python-versions) }}
->>>>>>> after updating
+        python-version: ${{ fromJson(needs.build-package.outputs.minmax-python-versions) }}
         session:
           - test
         include:
