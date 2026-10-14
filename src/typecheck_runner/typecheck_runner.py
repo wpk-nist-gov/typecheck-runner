@@ -31,7 +31,7 @@ FORMAT = "[typecheck-runner %(levelname)s] %(message)s"
 logger: Logger = logging.getLogger(__name__)
 
 
-# * Utilities -----------------------------------------------------------------
+# * Utilities --------------------------------------------------------------------------
 def _setup_logging(
     verbosity: int = 0,
     stdout: bool = False,
@@ -50,7 +50,7 @@ def _setup_logging(
         logging.basicConfig(level=logging.WARNING, format=FORMAT)
 
 
-# * Runner --------------------------------------------------------------------
+# * Runner -----------------------------------------------------------------------------
 
 
 def _infer_venv_location() -> Path:
@@ -220,7 +220,7 @@ def _run_checker(
     return returncode
 
 
-# * Application ---------------------------------------------------------------
+# * Application ------------------------------------------------------------------------
 def get_parser() -> ArgumentParser:
     """Get argparser."""
     parser = ArgumentParser(description="Run executable using uvx.")
