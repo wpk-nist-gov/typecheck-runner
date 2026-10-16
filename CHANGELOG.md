@@ -5,6 +5,18 @@
 
 Changelog for `typecheck-runner`
 
+## 0.2.2
+
+Released on 2026-10-16.
+
+### Bug fixes
+
+- fix: better logger info ([#348](https://github.com/wpk-nist-gov/typecheck-runner/pull/348))
+
+### Contributors
+
+- [@wpk-nist-gov](https://github.com/wpk-nist-gov)
+
 ## 0.2.1
 
 Released on 2026-10-16.
