@@ -500,7 +500,10 @@ def test__run_checker(
         autospec=True,
         return_value=return_value,
     ) as mocked_call:
-        assert typecheck_runner._run_checker(*args, dry_run=dry_run) == expected
+        assert (
+            typecheck_runner._run_checker(*args, checker="dummy", dry_run=dry_run)
+            == expected
+        )
         assert (
             mocked_logger.error.call_count == 0 if (dry_run or not return_value) else 1
         )
@@ -583,7 +586,7 @@ def test_main(
 ) -> None:
     assert not typecheck_runner.main(args)
     assert mocked_run_checker.call_args_list == [
-        call(*[str(Path(e[0])), *e[1:]], dry_run=False)
+        call(*[str(Path(e[0])), *e[1:]], checker=checker, dry_run=False)
         for checker, e in zip(checkers, expecteds, strict=True)
     ]
 
@@ -638,7 +641,8 @@ def test_main_fail_fast(
 
     assert out == len(expects)
     assert mocked_run_checker.call_args_list == [
-        call(*e, dry_run=False) for checker, e in zip(checkers, expecteds, strict=True)
+        call(*e, checker=checker, dry_run=False)
+        for checker, e in zip(checkers, expecteds, strict=True)
     ]
 
 
