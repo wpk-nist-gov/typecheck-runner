@@ -249,11 +249,7 @@ jobs:
       - typecheck
       - test
       - coverage
-<<<<<<< before updating
-=======
-      - docs
       - zizmor
->>>>>>> after updating
     runs-on: ubuntu-latest
     steps:
       - name: Decide whether the needed jobs succeeded or failed
