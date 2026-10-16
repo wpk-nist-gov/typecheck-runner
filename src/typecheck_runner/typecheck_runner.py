@@ -419,7 +419,7 @@ def main(args: Sequence[str] | None = None) -> int:
             uvx_delimiter=options.uvx_delimiter,
             uvx_options=uvx_options,
         )
-        print()  # ruff: ignore[print]
+        _ = sys.stderr.write(f"\n> {checker}\n")
         logger.info("%s checker", checker)
         checker_code = _run_checker(
             *args,
