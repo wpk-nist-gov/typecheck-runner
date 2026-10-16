@@ -207,16 +207,16 @@ def _run_checker(
 ) -> int:
     cleaned_args = [os.fsdecode(arg) for arg in args]
     full_cmd = shlex.join(cleaned_args)
-    logger.info("Command for %s: %s", checker, full_cmd)
+    logger.info("%s command: %s", checker, full_cmd)
 
     if dry_run:
         return 0
 
     start_time = perf_counter()
     returncode = subprocess.call(cleaned_args)
-    logger.info("Execution time for %s: %s", checker, perf_counter() - start_time)
+    logger.info("%s execution time: %s", checker, perf_counter() - start_time)
     if returncode:
-        logger.error("Exit code for %s: %s", checker, returncode)
+        logger.error("%s exit code: %s", checker, returncode)
 
     return returncode
 
@@ -419,7 +419,8 @@ def main(args: Sequence[str] | None = None) -> int:
             uvx_delimiter=options.uvx_delimiter,
             uvx_options=uvx_options,
         )
-        logger.info("Checker: %s", checker)
+        print()  # ruff: ignore[print]
+        logger.info("%s checker", checker)
         checker_code = _run_checker(
             *args,
             *_get_python_flags(checker, python_version, python_executable),
