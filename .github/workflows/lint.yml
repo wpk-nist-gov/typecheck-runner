@@ -65,6 +65,8 @@ jobs:
           # another fixer, so a single pass may not reach a stable tree.
           # Re-run on the fixed tree until prek exits clean or we hit the cap.
           set -x
+          prek prepare-hooks
+
           for attempt in 1 2 3; do
             echo "::notice title=Prek run attempt::attempt=$attempt"
             echo "--------------------------------------------------"
